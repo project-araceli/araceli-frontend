@@ -1,7 +1,7 @@
 import { IonApp, IonRouterOutlet, IonSplitPane, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
-import Menu from './components/Menu';
+import Menu from './components/menu/Menu';
 import Page from './pages/Page';
 
 /* Core CSS required for Ionic components to work properly */
@@ -22,10 +22,23 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import {useState} from "react";
+import NavBar from "./components/navbar/NavBar";
 
 setupIonicReact();
 
-const App: React.FC = () => {
+const App = () => {
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+
+  if (!loggedIn) {
+    return (
+        <>
+          <NavBar/>
+        </>
+    )
+  }
+
+
   return (
     <IonApp>
       <IonReactRouter>
