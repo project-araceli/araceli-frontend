@@ -24,31 +24,35 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 import {useState} from "react";
 import NavBar from "./components/navbar/NavBar";
+import HomePage from "./pages/home-page/HomePage";
 
 setupIonicReact();
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
-  if (!loggedIn) {
+  /*if (!loggedIn) {
     return (
         <>
           <NavBar/>
         </>
     )
-  }
+  }*/
 
 
   return (
     <IonApp>
       <IonReactRouter>
         <IonSplitPane contentId="main">
-          <Menu />
           <IonRouterOutlet id="main">
-            <Route path="/" exact={true}>
-              <Redirect to="/folder/Inbox" />
+            <Route path="/">
+              <HomePage/>
             </Route>
-            <Route path="/folder/:name" exact={true}>
+            {/*<Route path="/idk" exact={true}>
+              <Redirect to="/folder/Inbox" />
+            </Route>*/}
+            <Route path="/idk" exact={true}>
+              <Menu />
               <Page />
             </Route>
           </IonRouterOutlet>
