@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {IonButton, IonCheckbox, IonIcon, IonItem, IonLabel} from "@ionic/react";
+import {IonButton, IonCheckbox, IonIcon, IonItem, IonLabel, IonReorder} from "@ionic/react";
 import {trash} from "ionicons/icons";
 import {ITodoListItem} from "../../common/models";
 
@@ -28,6 +28,7 @@ const TodoListItem = ({item, onToggleIsDoneCheckbox}: ITodoListItemProps) => {
             <IonButton color={"danger"}>
                 <IonIcon slot="icon-only" icon={trash}></IonIcon>
             </IonButton>
+            <IonReorder slot="end"></IonReorder>
         </IonItem>
     );
 };
