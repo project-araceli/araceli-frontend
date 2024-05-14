@@ -10,3 +10,9 @@ export interface ITodoListItem {
     description: string;
     isDone: boolean;
 }
+
+export interface ITodoList {
+    todoListId: number;
+    title: string;
+    items: ITodoListItem[];
+}
