@@ -25,6 +25,7 @@ import './theme/variables.css';
 import {useState} from "react";
 import NavBar from "./components/navbar/NavBar";
 import HomePage from "./pages/home-page/HomePage";
+import LoginPage from "./pages/login-page/LoginPage";
 
 setupIonicReact();
 
@@ -54,6 +55,9 @@ const App = () => {
             <Route path="/idk" exact={true}>
               <Menu />
               <Page />
+            </Route>
+            <Route path={"/login"}>
+              <LoginPage/>
             </Route>
           </IonRouterOutlet>
         </IonSplitPane>
