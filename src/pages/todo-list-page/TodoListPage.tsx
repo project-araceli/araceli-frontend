@@ -67,7 +67,9 @@ const TodoListPage = () => {
                     <IonButton className={"me-2"} slot={"end"}
                                onClick={() => setIsReorderEnabled(!isReorderEnabled)}>Edit</IonButton>
                     <IonButton className={"me-2"} slot={"end"}
-                               onClick={() => setIsReorderEnabled(!isReorderEnabled)}>Edit</IonButton>
+                               onClick={() => setIsReorderEnabled(!isReorderEnabled)}>
+                        <IonIcon icon={""} />
+                    </IonButton>
                 </IonToolbar>
             </IonHeader>
             <IonItem className={"mt-2 mb-2"}>
