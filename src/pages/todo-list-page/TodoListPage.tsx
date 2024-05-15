@@ -34,13 +34,15 @@ const TodoListPage = () => {
 
     useEffect(() => {
         if (todoLists.length > 0) {
+            console.log("HELLO");
             setSelectedTodoList(todoLists[0]);
+            console.log(selectedTodoList);
             if (selectedTodoList) {
                 setCompletedTasks(selectedTodoList.items.filter(x => x.isDone));
                 setNotCompletedTasks(selectedTodoList.items.filter(x => !x.isDone));
             }
         }
-    }, []);
+    }, [todoLists]);
 
     const handleReorder = (event: CustomEvent<ItemReorderEventDetail>) => {
         console.log('Dragged from index', event.detail.from, 'to', event.detail.to);
@@ -64,11 +66,13 @@ const TodoListPage = () => {
                     <IonTitle>Todo</IonTitle>
                     <IonButton className={"me-2"} slot={"end"}
                                onClick={() => setIsReorderEnabled(!isReorderEnabled)}>Edit</IonButton>
+                    <IonButton className={"me-2"} slot={"end"}
+                               onClick={() => setIsReorderEnabled(!isReorderEnabled)}>Edit</IonButton>
                 </IonToolbar>
             </IonHeader>
             <IonItem className={"mt-2 mb-2"}>
-                <IonSelect aria-label="todolist" interface="popover" placeholder="Select a TodoList">
-                    {error ? <IonSelectOption>{error}</IonSelectOption> : todoLists.map(x => <IonSelectOption
+                <IonSelect aria-label="todolist" interface="popover" placeholder="Select a TodoList" value={selectedTodoList}>
+                    {error ? <IonSelectOption>{error}</IonSelectOption> : todoLists.map(x => <IonSelectOption onClick={() => setSelectedTodoList(x)}
                         value={x.todoListId}>{x.title}</IonSelectOption>)}
                 </IonSelect>
             </IonItem>
