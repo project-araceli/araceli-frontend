@@ -1,25 +1,47 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-    IonButton, IonButtons,
+    IonButton,
     IonCard, IonCardContent, IonCardHeader, IonCardSubtitle,
     IonCardTitle,
-    IonCheckbox,
     IonGrid,
     IonInput,
     IonItem,
     IonLabel, IonList,
-    IonMenu
 } from "@ionic/react";
-import NavBar from "../../components/navbar/NavBar";
 import Seperator from "../../components/seperator/Seperator";
-import {GoogleLogin, useGoogleLogin} from "@react-oauth/google";
-import LoginButton from "../../components/login-button/LoginButton";
+import {GoogleLogin} from "@react-oauth/google";
+import axios from "axios";
 
 const LoginPage = () => {
+    const [user, setUser] = useState();
 
-    const login = useGoogleLogin({
-        onSuccess: tokenResponse => console.log(tokenResponse),
-    });
+
+    // const login = useGoogleLogin({
+    //     onSuccess: (codeResponse) => {
+    //
+    //         axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${codeResponse.access_token}`,
+    //                 Accept: 'application/json'
+    //
+    //             },
+    //         })
+    //             .then(res => setUser(res.data))
+    //     },
+    // });
+    //
+    // useEffect(() => {
+    //     console.log(user)
+    // }, [user]);
+
+    // const oneTapLogin = useGoogleOneTapLogin({
+    //     onSuccess: credentialResponse => {
+    //         console.log(credentialResponse);
+    //     },
+    //     onError: () => {
+    //         console.log('Login Failed');
+    //     },
+    // });
 
     return (
         <>
@@ -47,7 +69,20 @@ const LoginPage = () => {
                             <IonButton size={'small'} className={'w-full font-bold'}>LOGIN</IonButton>
                             <Seperator text={"or"}/>
                             {/*<LoginButton/>*/}
-                            <LoginButton login={login}/>
+                            {/*<LoginButton login={login}/>*/}
+                            <GoogleLogin
+                                onSuccess={credentialResponse => {
+                                    console.log(credentialResponse);
+                                }}
+                                shape="circle"
+                                onError={() => {
+                                    console.log('Login Failed');
+                                }}
+                            />
+
+
+                            {/*<GoogleButton type={"dark"} onClick={() => console.log("Test")}/>*/}
+                            {/*<LoginButton login={oneTapLogin}/>*/}
                         </IonGrid>
 
                     </IonCardContent>
