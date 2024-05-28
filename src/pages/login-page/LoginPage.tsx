@@ -11,10 +11,18 @@ import {
 import Seperator from "../../components/seperator/Seperator";
 import {GoogleLogin} from "@react-oauth/google";
 import axios from "axios";
+import apiClient from "../../common/api-client";
+import { useCookies } from 'react-cookie';
+
+/**
+ * Project: araceli-frontend
+ * Created by: Michael Hütter
+ * Created at: 16.04.24
+ */
 
 const LoginPage = () => {
     const [user, setUser] = useState();
-
+    const [cookies, setCookie] = useCookies(['name'])
 
     // const login = useGoogleLogin({
     //     onSuccess: (codeResponse) => {
@@ -70,15 +78,21 @@ const LoginPage = () => {
                             <Seperator text={"or"}/>
                             {/*<LoginButton/>*/}
                             {/*<LoginButton login={login}/>*/}
-                            <GoogleLogin
-                                onSuccess={credentialResponse => {
-                                    console.log(credentialResponse);
-                                }}
-                                shape="circle"
-                                onError={() => {
-                                    console.log('Login Failed');
-                                }}
-                            />
+                            <div className={"w-full rounded-2xl overflow-hidden"}>
+                                <GoogleLogin
+                                    onSuccess={credentialResponse => {
+                                        console.log(credentialResponse);
+                                        apiClient.post("/auth/login", {},{headers: {Authorization: credentialResponse.credential}})
+                                            .then(res => console.log(res.data))
+                                        console.log(credentialResponse);
+                                    }}
+                                    shape="circle"
+                                    onError={() => {
+                                        console.log('Login Failed');
+                                    }}
+                                />
+                            </div>
+
 
 
                             {/*<GoogleButton type={"dark"} onClick={() => console.log("Test")}/>*/}
