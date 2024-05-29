@@ -49,7 +49,7 @@ const App = () => {
                         <Route path="/">
                             <HomePage/>
                         </Route>
-                        <Route path="/todolist">
+                        <Route path={"/todolist"} exact={true}>
                             <TodoListPage/>
                         </Route>
                         {/*<Route path="/idk" exact={true}>
