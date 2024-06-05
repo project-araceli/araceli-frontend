@@ -26,8 +26,9 @@ import {useState} from "react";
 import NavBar from "./components/navbar/NavBar";
 import HomePage from "./pages/home-page/HomePage";
 import TodoListPage from "./pages/todo-list-page/TodoListPage";
+import LoginPage from "./pages/login-page/LoginPage";
+import RegisterPage from "./pages/register-page/RegisterPage";
 import FileManagerPage from "./pages/file-manager-page/FileManagerPage";
-import FileList from "./components/file-list/FileList";
 
 setupIonicReact();
 
@@ -60,8 +61,14 @@ const App = () => {
                             <Menu/>
                             <Page/>
                         </Route>
+                        <Route path={"/login"}>
+                            <LoginPage/>
+                        </Route>
                         <Route path="/file-manager">
                             <FileManagerPage/>
+                        </Route>
+                        <Route path={"/signup"}>
+                            <RegisterPage/>
                         </Route>
                     </IonRouterOutlet>
                 </IonSplitPane>

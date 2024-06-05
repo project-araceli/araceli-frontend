@@ -1,73 +1,61 @@
-import React, {useEffect, useState} from 'react';
+/**
+ * Project: araceli-frontend
+ * Created by: Michael Hütter
+ * Created at: 04.06.2024
+ */
 import {
     IonButton,
-    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
     IonCardTitle,
     IonGrid,
     IonInput,
     IonItem,
-    IonLabel, IonList, IonRouterLink,
+    IonLabel,
+    IonList, IonRouterLink
 } from "@ionic/react";
-import Seperator from "../../components/seperator/Seperator";
-import {GoogleLogin, useGoogleLogin, useGoogleOAuth} from "@react-oauth/google";
-import axios from "axios";
 import apiClient from "../../common/api-client";
-import { useCookies } from 'react-cookie';
-import * as path from "node:path";
-import LoginButton from "../../components/login-button/LoginButton";
+import Seperator from "../../components/seperator/Seperator";
+import {GoogleLogin} from "@react-oauth/google";
+import React, {useState} from "react";
+import {useCookies} from "react-cookie";
 
-/**
- * Project: araceli-frontend
- * Created by: Michael Hütter
- * Created at: 16.04.24
- */
-
-const LoginPage = () => {
-    const [user, setUser] = useState();
-    const [cookies, setCookie] = useCookies();
+const RegisterPage = () => {
+    const [username, setUsername] = useState<string>();
     const [email, setEmail] = useState<string>();
+    const [imageUrl, setImageUrl] = useState<string>();
     const [password, setPassword] = useState<string>();
-    // const login = useGoogleLogin({
-    //     onSuccess: (codeResponse) => {
-    //
-    //         axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${codeResponse.access_token}`,
-    //                 Accept: 'application/json'
-    //
-    //             },
-    //         })
-    //             .then(res => setUser(res.data))
-    //     },
-    // });
-    //
-    // useEffect(() => {
-    //     console.log(user)
-    // }, [user]);
-
-    // const oneTapLogin = useGoogleOneTapLogin({
-    //     onSuccess: credentialResponse => {
-    //         console.log(credentialResponse);
-    //     },
-    //     onError: () => {
-    //         console.log('Login Failed');
-    //     },
-    // });
+    const [cookies, setCookie] = useCookies();
 
     return (
         <>
             <IonGrid className={'h-full grid place-items-center'}>
                 <IonCard className={'mx-auto'} mode={"ios"}>
                     <IonCardHeader>
-                        <IonCardTitle className={'ion-text-center'}>Login</IonCardTitle>
+                        <IonCardTitle className={'ion-text-center'}>Register</IonCardTitle>
                     </IonCardHeader>
 
                     <IonCardContent>
                         <IonList inset={true} lines={"inset"}>
                             <IonItem>
-                                <IonLabel position="floating">Username / E-Mail</IonLabel>
+                                <IonLabel position="floating">Username</IonLabel>
+                                <IonInput type={"text"} value={username} clearInput={true} onIonInput={(ev: Event) => {
+                                    setUsername((ev.target as HTMLIonInputElement).value as string)
+                                }}/>
+                            </IonItem>
+
+                            <IonItem>
+                                <IonLabel position="floating">Email</IonLabel>
                                 <IonInput type={"text"} value={email} clearInput={true} onIonInput={(ev: Event) => {
                                     setEmail((ev.target as HTMLIonInputElement).value as string)
+                                }}/>
+                            </IonItem>
+
+                            <IonItem>
+                                <IonLabel position="floating">Profile Picture URL</IonLabel>
+                                <IonInput type={"text"} value={imageUrl} clearInput={true} onIonInput={(ev: Event) => {
+                                    setImageUrl((ev.target as HTMLIonInputElement).value as string)
                                 }}/>
                             </IonItem>
 
@@ -82,14 +70,16 @@ const LoginPage = () => {
 
                         <IonGrid className={"grid gap-2"}>
                             <IonButton size={'small'} className={'w-full font-bold'} onClick={() => {
-                                apiClient.post("/auth/login", {email: email, password: password})
+                                apiClient.post("/auth/register", {username: username, email: email, imageUrl: imageUrl, password: password})
                                     .then(res => setCookie('auth-token', res.data, {
                                         path: "/",
                                         expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
                                         secure: true
                                     }))
-                            }}>LOGIN</IonButton>
+                            }}>REGISTER</IonButton>
+
                             <Seperator text={"or"}/>
+
                             <div className={"w-full mx-auto rounded-2xl overflow-hidden flex justify-center bg-white"}>
                                 <GoogleLogin
                                     onSuccess={credentialResponse => {
@@ -109,21 +99,16 @@ const LoginPage = () => {
                                 />
                             </div>
 
-
-
-                            {/*<GoogleButton type={"dark"} onClick={() => console.log("Test")}/>*/}
-                            {/*<LoginButton login={oneTapLogin}/>*/}
-                            <IonRouterLink href={"/signup"} className={"mt-2 hover:underline hover:text-blue-900"}>Need a new Account?</IonRouterLink>
-
+                            <IonRouterLink href={"/login"} className={"mt-2 hover:underline hover:text-blue-900"}>Have an Account already?</IonRouterLink>
                         </IonGrid>
+
                     </IonCardContent>
 
                 </IonCard>
             </IonGrid>
 
         </>
-
-);
+    );
 };
 
-export default LoginPage;
+export default RegisterPage;

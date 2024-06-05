@@ -12,20 +12,20 @@ import {ITodoListItem} from "../../common/models";
 interface ITodoListItemProps {
     item: ITodoListItem;
     onToggleIsDoneCheckbox: (item: ITodoListItem) => void;
+    deleteItem: (id: string) => void;
 }
 
-const TodoListItem = ({item, onToggleIsDoneCheckbox}: ITodoListItemProps) => {
+const TodoListItem = ({item, onToggleIsDoneCheckbox, deleteItem}: ITodoListItemProps) => {
 
     const handleOnClickCheckbox = () => {
         item.isDone = !item.isDone;
-        console.log(item.isDone);
         onToggleIsDoneCheckbox(item);
     }
     return (
         <IonItem button={false}>
             <IonCheckbox slot={"start"} checked={item.isDone} onClick={() => handleOnClickCheckbox()}/>
             <IonLabel>{item.name}</IonLabel>
-            <IonButton color={"danger"}>
+            <IonButton color={"danger"} onClick={() => deleteItem(item.itemId)}>
                 <IonIcon slot="icon-only" icon={trash}></IonIcon>
             </IonButton>
             <IonReorder slot="end"></IonReorder>

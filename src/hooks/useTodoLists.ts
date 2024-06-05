@@ -24,7 +24,7 @@ const useTodoLists = () => {
             });
         return () => controller.abort();
     }, []);
-    return {todoLists, error};
+    return {todoLists, setTodoLists, error};
 }
 
 export {useTodoLists};
