@@ -12,6 +12,8 @@ const useResources = () => {
     const [resources, setResources] = useState<IResource[]>([]);
     const [error, setError] = useState<string | undefined>();
 
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         const controller = new AbortController();
         apiClient.get("/resource", {headers: {Authorization: "TOKEN"}, signal: controller.signal})
@@ -21,9 +23,9 @@ const useResources = () => {
                 setError(err.message);
             });
         return () => controller.abort();
-    }, []);
+    }, [refreshing]);
 
-    return {resources, setResources, error, setError};
+    return {resources, setResources, error, setError, refreshing, setRefreshing};
 }
 
 export default useResources;

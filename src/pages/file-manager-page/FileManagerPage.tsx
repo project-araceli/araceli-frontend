@@ -24,18 +24,15 @@ import {IResource} from "../../common/models";
 import useResources from "../../hooks/useResources";
 import {ResourceType} from "../../common/global-constants";
 import {addOutline, documentOutline, folderOutline} from "ionicons/icons";
+import {root} from "postcss";
 
 const FileManagerPage = () => {
         const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
         const [isAddFolderOpen, setIsAddFolderOpen] = useState<boolean>(false);
         const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
-
-        const {resources, setResources} = useResources();
-        const [currentFolder, setCurrentFolder] = useState<IResource>({} as IResource);
-        const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
-
         const [folderName, setFolderName] = useState<string | undefined>();
 
+        const {resources, setResources, refreshing, setRefreshing} = useResources();
         const rootFolder: IResource = {
             resourceId: "root",
             name: "/",
@@ -43,9 +40,20 @@ const FileManagerPage = () => {
             children: resources
         }
 
+        const [currentFolder, setCurrentFolder] = useState<IResource>({} as IResource);
+        const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
+
         useEffect(() => {
+            console.log(lastFolders);
+            const previousCurrentFolder = {...currentFolder};
             setCurrentFolder(rootFolder);
-        }, [resources]);
+            // console.log(previousCurrentFolder);
+            if (previousCurrentFolder.resourceId !== rootFolder.resourceId && Object.keys(previousCurrentFolder).length !== 0) {
+                setCurrentFolder(previousCurrentFolder);
+                syncLastFoldersWithResources();
+                console.log("IN HERE")
+            }
+        }, [resources, refreshing]);
 
         const onSubmitFileCreateForm = () => {
             const formData = new FormData();
@@ -60,6 +68,7 @@ const FileManagerPage = () => {
                         setIsAddFileOpen(false);
                         if (currentFolder.children) {
                             setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
+                            setRefreshing(!refreshing);
                         }
                     })
                     .catch(err => console.log(err.message));
@@ -77,6 +86,7 @@ const FileManagerPage = () => {
                         setIsAddFolderOpen(false);
                         if (currentFolder.children) {
                             setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
+                            setRefreshing(!refreshing);
                         }
                     })
                     .catch(err => console.log(err.message));
@@ -118,8 +128,28 @@ const FileManagerPage = () => {
                         ...currentFolder,
                         children: currentFolder.children?.filter(x => x.resourceId !== item.resourceId)
                     });
+                    setRefreshing(!refreshing);
                 })
                 .catch(err => console.log(err.message));
+        }
+
+        const syncLastFoldersWithResources = () => {
+            if (lastFolders !== undefined && lastFolders.length !== 0) {
+                console.log("SYNC STARTS");
+                let temp: IResource = {...rootFolder, children: resources};
+                const newLastFoldersArray: IResource[] = [rootFolder];
+                for (let folder of lastFolders) {
+                    console.log(folder);
+                    const updatedFolder = temp.children?.find(x => x.resourceId === folder.resourceId);
+                    if (updatedFolder) {
+                        newLastFoldersArray.push(updatedFolder);
+                        temp = updatedFolder;
+                    }
+                }
+                console.log("NEW ARRAY");
+                console.log(newLastFoldersArray);
+                setLastFolders(newLastFoldersArray);
+            }
         }
 
         return (
@@ -139,9 +169,11 @@ const FileManagerPage = () => {
                 <IonContent fullscreen>
                     <div className={"mx-5 mt-5"}>
                         <div className={"flex flex-row justify-between"}>
-                            <div><IonChip color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip></div>
+                            <div><IonChip
+                                color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
+                            </div>
                             <div><IonButton disabled={lastFolders === undefined}
-                                                          onClick={goBackToLastFolder}>Back</IonButton></div>
+                                            onClick={goBackToLastFolder}>Back</IonButton></div>
                         </div>
                     </div>
                     <FileList resources={currentFolder.children} handleOnClickFileListItem={handleOnClickFileListItem}
