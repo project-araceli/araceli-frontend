@@ -8,12 +8,12 @@ import React, {useEffect, useState} from 'react';
 import {
     IonButton,
     IonButtons,
-    IonChip, IonCol,
-    IonContent, IonGrid,
-    IonHeader, IonIcon, IonInput, IonItem,
+    IonChip,
+    IonContent,
+    IonHeader, IonIcon, IonInput,
     IonMenuButton,
     IonModal,
-    IonPage, IonRow,
+    IonPage,
     IonTitle,
     IonToolbar
 } from "@ionic/react";
@@ -137,13 +137,13 @@ const FileManagerPage = () => {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen>
-                    <IonGrid className={"ms-5 mt-5"}>
-                        <IonRow>
-                            <IonCol size={"1"}><IonChip color="primary">{currentFolder.name}</IonChip></IonCol>
-                            <IonCol size={"1"}><IonButton disabled={lastFolders === undefined}
-                                                          onClick={goBackToLastFolder}>Back</IonButton></IonCol>
-                        </IonRow>
-                    </IonGrid>
+                    <div className={"mx-5 mt-5"}>
+                        <div className={"flex flex-row justify-between"}>
+                            <div><IonChip color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip></div>
+                            <div><IonButton disabled={lastFolders === undefined}
+                                                          onClick={goBackToLastFolder}>Back</IonButton></div>
+                        </div>
+                    </div>
                     <FileList resources={currentFolder.children} handleOnClickFileListItem={handleOnClickFileListItem}
                               deleteFile={deleteFile}/>
                     <IonModal isOpen={isAddFileOpen} onWillDismiss={() => setIsAddFileOpen(false)}>
