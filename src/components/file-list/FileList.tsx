@@ -12,14 +12,15 @@ import {IResource} from "../../common/models";
 interface IFileListProps {
     resources?: IResource[];
     handleOnClickFileListItem: (item: IResource) => void;
+    deleteFile: (item: IResource) => void;
 }
 
-const FileList = ({resources, handleOnClickFileListItem}: IFileListProps) => {
+const FileList = ({resources, handleOnClickFileListItem, deleteFile}: IFileListProps) => {
     return (
         <>
             {
                 resources && resources.length > 0 ? <IonList lines={"full"} inset mode={"ios"}>
-                    {resources.map(x => <FileListItem key={x.resourceId} item={x} handleOnClickFileListItem={handleOnClickFileListItem}/>)}
+                    {resources.map(x => <FileListItem key={x.resourceId} item={x} handleOnClickFileListItem={handleOnClickFileListItem} deleteFile={deleteFile}/>)}
                 </IonList>
                     : <IonText className={"m-4"}>There is no content in this folder.</IonText>
             }

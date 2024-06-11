@@ -15,9 +15,10 @@ import {saveAs} from "file-saver";
 interface IFileListItemProps {
     item: IResource;
     handleOnClickFileListItem: (item: IResource) => void;
+    deleteFile: (item: IResource) => void;
 }
 
-const FileListItem = ({item, handleOnClickFileListItem}: IFileListItemProps) => {
+const FileListItem = ({item, handleOnClickFileListItem, deleteFile}: IFileListItemProps) => {
 
     const downloadFile = (e: React.MouseEvent<HTMLIonButtonElement>) => {
         e.stopPropagation();
@@ -31,12 +32,14 @@ const FileListItem = ({item, handleOnClickFileListItem}: IFileListItemProps) => 
             .catch(err => console.log(err));
     }
 
+
+
     return (
         <IonItem onClick={() => handleOnClickFileListItem(item)}>
             <IonIcon icon={item.type === ResourceType.FOLDER ? folderOutline: documentOutline}/>
             <IonLabel className={"ps-5"}>{item.name}</IonLabel>
             {item.type === ResourceType.FILE ? <IonButton onClick={downloadFile}><IonIcon icon={downloadOutline}/></IonButton> : <></>}
-            <IonButton><IonIcon icon={trashOutline}/></IonButton>
+            <IonButton onClick={(e) => {e.stopPropagation(); deleteFile(item)}}><IonIcon icon={trashOutline}/></IonButton>
             <IonButton><IonIcon icon={ellipsisHorizontalOutline}/></IonButton>
         </IonItem>
     );
