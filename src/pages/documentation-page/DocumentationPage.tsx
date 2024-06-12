@@ -93,7 +93,8 @@ const DocumentationPage = () => {
                   </IonContent>
               </IonMenu>
               <IonRouterOutlet id={"main-content"}>
-                  <Route path="/documentation/test" component={TestDocumentation} exact/>
+                  {/*<Route path="/documentation/test" exact><TestDocumentation markdownPath={"./test.md"}/></Route>*/}
+                  <Route path={"/documentation/test"} exact><TestDocumentation markdownPath={"/markdowns/test.md"}/></Route>
               </IonRouterOutlet>
           </IonSplitPane>
       </>

@@ -3,25 +3,31 @@
  * Created by: Michael Hütter
  * Created at: 04.06.2024
  */
-import {IonHeader, IonLabel, IonTitle} from "@ionic/react";
-import Markdown from "markdown-to-jsx";
+import {IonHeader, IonLabel, IonText, IonTitle} from "@ionic/react";
 import {useEffect, useState} from "react";
-import md from "./test.md"
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import "./Markdown.css"
 
-const TestDocumentation = () => {
-    // const [md, setMd] = useState<string>();
+interface Props {
+    markdownPath: string
+}
 
-    // useEffect(() => {
-    //     import('./test.md').then(res => {
-    //         fetch(res.default).then(res => res.text()).then(res => setMd(res))
-    //     })
-    // }, []);
+const TestDocumentation = ({markdownPath}: Props) => {
+    const [md, setMd] = useState<string>();
+
+
+    useEffect(() => {
+        fetch(markdownPath)
+            .then(res => res.text())
+            .then(text => setMd(text))
+    }, [markdownPath]);
 
 
     return (
-        <>
-            <Markdown>{md}</Markdown>
-        </>
+        <div className={"p-4"}>
+            <ReactMarkdown children={md} remarkPlugins={[remarkGfm]}/>
+        </div>
     );
 };
 
