@@ -14,13 +14,10 @@ import { useLocation } from 'react-router-dom';
 import {
   archiveOutline,
   archiveSharp,
-  bookmarkOutline,
   heartOutline,
   heartSharp,
   trashOutline,
   trashSharp,
-  warningOutline,
-  warningSharp,
   arrowRedo,
   arrowRedoOutline,
     folderOutline,
@@ -71,12 +68,12 @@ const appPages: AppPage[] = [
 const Menu = () => {
   const location = useLocation();
 
-  return (
-    <IonMenu contentId="main" type="overlay">
+  /*
+  * {/*<IonMenu menuId={"main"} contentId="main" type="overlay" onIonDidClose={(e) => e.target.open()}>
       <IonContent>
         <IonList id="inbox-list">
-          <IonListHeader>Inbox</IonListHeader>
-          <IonNote>hi@ionicframework.com</IonNote>
+          <IonListHeader>araceli</IonListHeader>
+          <IonNote>/</IonNote>
           {appPages.map((appPage, index) => {
             return (
               <IonMenuToggle key={index} autoHide={false}>
@@ -89,7 +86,27 @@ const Menu = () => {
           })}
         </IonList>
       </IonContent>
-    </IonMenu>
+    </IonMenu>*/
+
+  return (
+      <IonMenu contentId="main" type="overlay">
+        <IonContent>
+          <IonList id="inbox-list">
+            <IonListHeader>Inbox</IonListHeader>
+            <IonNote>hi@ionicframework.com</IonNote>
+            {appPages.map((appPage, index) => {
+              return (
+                  <IonMenuToggle key={index} autoHide={false}>
+                    <IonItem className={location.pathname === appPage.url ? 'selected' : ''} routerLink={appPage.url} routerDirection="none" lines="none" detail={false}>
+                      <IonIcon aria-hidden="true" slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} />
+                      <IonLabel>{appPage.title}</IonLabel>
+                    </IonItem>
+                  </IonMenuToggle>
+              );
+            })}
+          </IonList>
+        </IonContent>
+      </IonMenu>
   );
 };
 
