@@ -13,19 +13,22 @@ const useResources = () => {
     const [error, setError] = useState<string | undefined>();
 
     const [refreshing, setRefreshing] = useState(false);
+    const [search, setSearch] = useState<string | null>();
 
     useEffect(() => {
+        console.log("REFRESHED");
+        console.log(search);
         const controller = new AbortController();
-        apiClient.get("/resource", {headers: {Authorization: "TOKEN"}, signal: controller.signal})
+        apiClient.get("/resource", {params: {search: search}, headers: {Authorization: "TOKEN"}, signal: controller.signal})
             .then(res => {setResources(res.data)})
             .catch(err => {
                 if (err instanceof CanceledError) return;
                 setError(err.message);
             });
         return () => controller.abort();
-    }, [refreshing]);
+    }, [refreshing, search]);
 
-    return {resources, setResources, error, setError, refreshing, setRefreshing};
+    return {resources, setResources, error, setError, refreshing, setRefreshing, setSearch};
 }
 
 export default useResources;

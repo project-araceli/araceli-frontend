@@ -13,7 +13,7 @@ import {
     IonHeader, IonIcon, IonInput,
     IonMenuButton,
     IonModal,
-    IonPage,
+    IonPage, IonSearchbar,
     IonTitle,
     IonToolbar
 } from "@ionic/react";
@@ -24,7 +24,6 @@ import {IResource} from "../../common/models";
 import useResources from "../../hooks/useResources";
 import {ResourceType} from "../../common/global-constants";
 import {addOutline, documentOutline, folderOutline} from "ionicons/icons";
-import {root} from "postcss";
 
 const FileManagerPage = () => {
         const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
@@ -32,7 +31,7 @@ const FileManagerPage = () => {
         const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
         const [folderName, setFolderName] = useState<string | undefined>();
 
-        const {resources, setResources, refreshing, setRefreshing} = useResources();
+        const {resources, setResources, refreshing, setRefreshing, setSearch} = useResources();
         const rootFolder: IResource = {
             resourceId: "root",
             name: "/",
@@ -43,15 +42,14 @@ const FileManagerPage = () => {
         const [currentFolder, setCurrentFolder] = useState<IResource>({} as IResource);
         const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
 
+
+
         useEffect(() => {
-            console.log(lastFolders);
             const previousCurrentFolder = {...currentFolder};
             setCurrentFolder(rootFolder);
-            // console.log(previousCurrentFolder);
             if (previousCurrentFolder.resourceId !== rootFolder.resourceId && Object.keys(previousCurrentFolder).length !== 0) {
                 setCurrentFolder(previousCurrentFolder);
                 syncLastFoldersWithResources();
-                console.log("IN HERE")
             }
         }, [resources, refreshing]);
 
@@ -172,6 +170,7 @@ const FileManagerPage = () => {
                             <div><IonChip
                                 color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
                             </div>
+                            <div><IonSearchbar onIonInput={(e) => {setCurrentFolder(rootFolder); setLastFolders(undefined); setSearch(e.target.value)}} animated={true} placeholder="Global Search"/></div>
                             <div><IonButton disabled={lastFolders === undefined}
                                             onClick={goBackToLastFolder}>Back</IonButton></div>
                         </div>
