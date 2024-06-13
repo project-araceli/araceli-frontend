@@ -13,7 +13,7 @@ import {
     IonHeader, IonIcon, IonInput,
     IonMenuButton,
     IonModal,
-    IonPage, IonSearchbar,
+    IonPage, IonSearchbar, IonSelect, IonSelectOption,
     IonTitle,
     IonToolbar
 } from "@ionic/react";
@@ -31,7 +31,7 @@ const FileManagerPage = () => {
         const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
         const [folderName, setFolderName] = useState<string | undefined>();
 
-        const {resources, setResources, refreshing, setRefreshing, setSearch} = useResources();
+        const {resources, setResources, refreshing, setRefreshing, setSearch, setFileExtension} = useResources();
         const rootFolder: IResource = {
             resourceId: "root",
             name: "/",
@@ -41,7 +41,7 @@ const FileManagerPage = () => {
 
         const [currentFolder, setCurrentFolder] = useState<IResource>({} as IResource);
         const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
-
+        const fileExtensionOptions = ["all", ".png", ".jpeg", ".docx", ".txt", ".md"];
 
 
         useEffect(() => {
@@ -171,6 +171,7 @@ const FileManagerPage = () => {
                                 color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
                             </div>
                             <div><IonSearchbar onIonInput={(e) => {setCurrentFolder(rootFolder); setLastFolders(undefined); setSearch(e.target.value)}} animated={true} placeholder="Global Search"/></div>
+                            <div><IonSelect defaultValue={fileExtensionOptions[0]} interface={"popover"} placeholder={"Type"} onIonChange={e => setFileExtension(e.detail.value)}>{fileExtensionOptions.map(x => <IonSelectOption value={x}>{x}</IonSelectOption>)}</IonSelect></div>
                             <div><IonButton disabled={lastFolders === undefined}
                                             onClick={goBackToLastFolder}>Back</IonButton></div>
                         </div>
