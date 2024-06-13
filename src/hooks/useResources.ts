@@ -29,7 +29,7 @@ const useResources = () => {
         return () => controller.abort();
     }, [refreshing, search, fileExtension]);
 
-    return {resources, setResources, error, setError, refreshing, setRefreshing, setSearch, setFileExtension};
+    return {resources, setResources, error, setError, refreshing, setRefreshing, search, setSearch, fileExtension, setFileExtension};
 }
 
 export default useResources;

@@ -23,26 +23,35 @@ import apiClient from "../../common/api-client";
 import {IResource} from "../../common/models";
 import useResources from "../../hooks/useResources";
 import {ResourceType} from "../../common/global-constants";
-import {addOutline, documentOutline, folderOutline} from "ionicons/icons";
+import {addOutline, documentOutline, folderOutline, search} from "ionicons/icons";
 
 const FileManagerPage = () => {
         const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
         const [isAddFolderOpen, setIsAddFolderOpen] = useState<boolean>(false);
+        const [showPath, setShowPath] = useState<boolean>(false);
         const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
         const [folderName, setFolderName] = useState<string | undefined>();
 
-        const {resources, setResources, refreshing, setRefreshing, setSearch, setFileExtension} = useResources();
+        const {
+            resources,
+            refreshing,
+            setRefreshing,
+            search,
+            setSearch,
+            fileExtension,
+            setFileExtension
+        } = useResources();
         const rootFolder: IResource = {
             resourceId: "root",
             name: "/",
             type: ResourceType.FOLDER,
-            children: resources
+            children: resources,
+            createdAt: ""
         }
 
         const [currentFolder, setCurrentFolder] = useState<IResource>({} as IResource);
         const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
         const fileExtensionOptions = ["all", ".png", ".jpeg", ".docx", ".txt", ".md"];
-
 
         useEffect(() => {
             const previousCurrentFolder = {...currentFolder};
@@ -50,6 +59,11 @@ const FileManagerPage = () => {
             if (previousCurrentFolder.resourceId !== rootFolder.resourceId && Object.keys(previousCurrentFolder).length !== 0) {
                 setCurrentFolder(previousCurrentFolder);
                 syncLastFoldersWithResources();
+            }
+            if (search || fileExtension && fileExtension !== "all") {
+                setShowPath(true);
+            } else {
+                setShowPath(false);
             }
         }, [resources, refreshing]);
 
@@ -67,7 +81,7 @@ const FileManagerPage = () => {
                         if (currentFolder.children) {
                             setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
                             setRefreshing(!refreshing);
-                            acceptedFiles.pop();
+                            acceptedFiles.pop(); // reset files in drop zone
                         }
                     })
                     .catch(err => console.log(err.message));
@@ -134,19 +148,15 @@ const FileManagerPage = () => {
 
         const syncLastFoldersWithResources = () => {
             if (lastFolders !== undefined && lastFolders.length !== 0) {
-                console.log("SYNC STARTS");
                 let temp: IResource = {...rootFolder, children: resources};
                 const newLastFoldersArray: IResource[] = [rootFolder];
                 for (let folder of lastFolders) {
-                    console.log(folder);
                     const updatedFolder = temp.children?.find(x => x.resourceId === folder.resourceId);
                     if (updatedFolder) {
                         newLastFoldersArray.push(updatedFolder);
                         temp = updatedFolder;
                     }
                 }
-                console.log("NEW ARRAY");
-                console.log(newLastFoldersArray);
                 setLastFolders(newLastFoldersArray);
             }
         }
@@ -158,7 +168,7 @@ const FileManagerPage = () => {
                         <IonButtons slot="start">
                             <IonMenuButton/>
                         </IonButtons>
-                        <IonTitle>Files</IonTitle>
+                        <IonTitle>File Manager</IonTitle>
                         <IonButton slot={"end"} onClick={() => setIsAddFolderOpen(true)}><IonIcon
                             icon={folderOutline}/><IonIcon icon={addOutline}/></IonButton>
                         <IonButton slot={"end"} style={{margin: 10}} onClick={() => setIsAddFileOpen(true)}><IonIcon
@@ -171,14 +181,21 @@ const FileManagerPage = () => {
                             <div><IonChip
                                 color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
                             </div>
-                            <div><IonSearchbar onIonInput={(e) => {setCurrentFolder(rootFolder); setLastFolders(undefined); setSearch(e.target.value)}} animated={true} placeholder="Global Search"/></div>
-                            <div><IonSelect defaultValue={fileExtensionOptions[0]} interface={"popover"} placeholder={"Type"} onIonChange={e => setFileExtension(e.detail.value)}>{fileExtensionOptions.map(x => <IonSelectOption key={x} value={x}>{x}</IonSelectOption>)}</IonSelect></div>
+                            <div><IonSearchbar color="primary" onIonInput={(e) => {
+                                setCurrentFolder(rootFolder);
+                                setLastFolders(undefined);
+                                setSearch(e.target.value)
+                            }} animated={true} placeholder="Global Search" className={"p-0"}/></div>
+                            <div><IonSelect defaultValue={fileExtensionOptions[0]} interface={"popover"}
+                                            placeholder={"Type"}
+                                            onIonChange={e => setFileExtension(e.detail.value)}>{fileExtensionOptions.map(x =>
+                                <IonSelectOption key={x} value={x}>{x}</IonSelectOption>)}</IonSelect></div>
                             <div><IonButton disabled={lastFolders === undefined}
                                             onClick={goBackToLastFolder}>Back</IonButton></div>
                         </div>
                     </div>
                     <FileList resources={currentFolder.children} handleOnClickFileListItem={handleOnClickFileListItem}
-                              deleteFile={deleteFile}/>
+                              deleteFile={deleteFile} showPath={showPath}/>
                     <IonModal isOpen={isAddFileOpen} onWillDismiss={() => setIsAddFileOpen(false)}>
                         <IonHeader>
                             <IonToolbar>

@@ -25,4 +25,5 @@ export interface IResource {
     contentType?: string;
     description?: string;
     children?: IResource[];
+    createdAt: string;
 }
