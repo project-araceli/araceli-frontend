@@ -67,6 +67,7 @@ const FileManagerPage = () => {
                         if (currentFolder.children) {
                             setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
                             setRefreshing(!refreshing);
+                            acceptedFiles.pop();
                         }
                     })
                     .catch(err => console.log(err.message));
@@ -171,7 +172,7 @@ const FileManagerPage = () => {
                                 color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
                             </div>
                             <div><IonSearchbar onIonInput={(e) => {setCurrentFolder(rootFolder); setLastFolders(undefined); setSearch(e.target.value)}} animated={true} placeholder="Global Search"/></div>
-                            <div><IonSelect defaultValue={fileExtensionOptions[0]} interface={"popover"} placeholder={"Type"} onIonChange={e => setFileExtension(e.detail.value)}>{fileExtensionOptions.map(x => <IonSelectOption value={x}>{x}</IonSelectOption>)}</IonSelect></div>
+                            <div><IonSelect defaultValue={fileExtensionOptions[0]} interface={"popover"} placeholder={"Type"} onIonChange={e => setFileExtension(e.detail.value)}>{fileExtensionOptions.map(x => <IonSelectOption key={x} value={x}>{x}</IonSelectOption>)}</IonSelect></div>
                             <div><IonButton disabled={lastFolders === undefined}
                                             onClick={goBackToLastFolder}>Back</IonButton></div>
                         </div>
