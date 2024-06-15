@@ -5,7 +5,7 @@
  */
 
 import React, {useState} from 'react';
-import {IonButton, IonIcon, IonItem, IonLabel} from "@ionic/react";
+import {IonButton, IonContent, IonIcon, IonItem, IonLabel, IonPopover} from "@ionic/react";
 import {documentOutline, downloadOutline, ellipsisHorizontalOutline, folderOutline, trashOutline} from "ionicons/icons";
 import {IResource} from "../../../common/models";
 import {ResourceType} from "../../../common/global-constants";
@@ -17,9 +17,10 @@ interface IFileListItemProps {
     handleOnClickFileListItem: (item: IResource) => void;
     deleteFile: (item: IResource) => void;
     showPath?: boolean;
+    onClickEditButton?: (item: IResource) => void;
 }
 
-const FileListItem = ({item, handleOnClickFileListItem, deleteFile, showPath = false}: IFileListItemProps) => {
+const FileListItem = ({item, handleOnClickFileListItem, deleteFile, showPath = false, onClickEditButton}: IFileListItemProps) => {
     const [path, setPath] = useState<string>();
 
     const getPath = () => {
@@ -45,11 +46,11 @@ const FileListItem = ({item, handleOnClickFileListItem, deleteFile, showPath = f
         <IonItem onClick={() => handleOnClickFileListItem(item)}>
             <IonIcon icon={item.type === ResourceType.FOLDER ? folderOutline: documentOutline}/>
             <IonLabel className={"ps-5"}>{item.name.length > 30 ? item.name.substring(0, 30) + "..." : item.name}</IonLabel>
-            {path ? <IonLabel>{path}</IonLabel> : <></>}
+            {showPath ? <IonLabel>{path}</IonLabel> : <></>}
             {showPath ? <></> : <IonLabel>{item.createdAt}</IonLabel>}
             {item.type === ResourceType.FILE ? <IonButton onClick={downloadFile}><IonIcon icon={downloadOutline}/></IonButton> : <></>}
             <IonButton onClick={(e) => {e.stopPropagation(); deleteFile(item)}}><IonIcon icon={trashOutline}/></IonButton>
-            <IonButton><IonIcon icon={ellipsisHorizontalOutline}/></IonButton>
+            <IonButton onClick={(e) => {e.stopPropagation(); onClickEditButton && onClickEditButton(item)}}><IonIcon icon={ellipsisHorizontalOutline}/></IonButton>
         </IonItem>
     );
 };
