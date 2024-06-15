@@ -12,8 +12,7 @@ import {
     IonContent,
     IonHeader, IonIcon, IonInput,
     IonMenuButton,
-    IonModal,
-    IonPage, IonPopover, IonSearchbar, IonSelect, IonSelectOption,
+    IonPage, IonSearchbar, IonSelect, IonSelectOption,
     IonTitle,
     IonToolbar
 } from "@ionic/react";
@@ -33,7 +32,8 @@ const FileManagerPage = () => {
     const [showPath, setShowPath] = useState<boolean>(false);
 
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
-    const [name, setName] = useState<string | undefined>();
+    const [name, setName] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
     const [fileToBeEdited, setFileToBeEdited] = useState<IResource | undefined>();
     const [initialCurrentFolder, setInitialCurrentFolder] = useState<IResource>({} as IResource);
 
@@ -94,7 +94,7 @@ const FileManagerPage = () => {
     }
 
     const createFolder = () => {
-        if (name) {
+        if (name && name.trim() !== "") {
             const formData = new FormData();
             formData.append("name", name);
             formData.append("parentId", currentFolder.resourceId);
@@ -170,6 +170,7 @@ const FileManagerPage = () => {
         setIsEditFileOpen(true);
         setFileToBeEdited(item);
         setName(item.name);
+        setDescription(item.description === undefined ? "" : item.description);
         setInitialCurrentFolder(currentFolder);
     }
 
@@ -192,21 +193,36 @@ const FileManagerPage = () => {
     }
 
     const onChangeFilePropertiesSubmit = () => {
-        console.log("file ", fileToBeEdited);
-        console.log("currentFolder ", currentFolder);
-        if (fileToBeEdited && name !== fileToBeEdited.name) {
-            apiClient.patch(`/resource/${fileToBeEdited.resourceId}/name`, {}, {
-                params: {name: name},
-                headers: {Authorization: "TOKEN"}
-            })
-                .then((res) => {
-                    if (currentFolder.children) {
-                        setCurrentFolder({...currentFolder, children: [...currentFolder.children.filter(x => x.resourceId === res.data), res.data]});
-                    }
-                    setIsEditFileOpen(false);
-                    setRefreshing(!refreshing);
+        if (fileToBeEdited) {
+            let params;
+            if (name !== fileToBeEdited.name && name.trim() !== "" && description !== fileToBeEdited.description && description.trim() !== "") {
+                params = {
+                    name: name,
+                    description: description
+                }
+            } else if (name !== fileToBeEdited.name && name.trim() !== "") {
+                params = {
+                    name: name
+                }
+            } else if (description !== fileToBeEdited.description && description.trim() !== "") {
+                params = {
+                    description: description
+                }
+            }
+            if (params) {
+                apiClient.patch(`/resource/${fileToBeEdited.resourceId}`, {}, {
+                    params: params,
+                    headers: {Authorization: "TOKEN"}
                 })
-                .catch(err => console.log(err.message));
+                    .then((res) => {
+                        if (currentFolder.children) {
+                            setCurrentFolder({...currentFolder, children: [...currentFolder.children.filter(x => x.resourceId === res.data), res.data]});
+                        }
+                        setIsEditFileOpen(false);
+                        setRefreshing(!refreshing);
+                    })
+                    .catch(err => console.log(err.message));
+            }
         }
     }
 
@@ -280,13 +296,20 @@ const FileManagerPage = () => {
                     <IonContent className="ion-padding">
                         <div className={"mb-10 w-full"}>
                             <IonTitle>Change File Properties</IonTitle>
-                            <div className={"mx-5"}>
+                            <div className={"mx-5 mb-5"}>
                                 <IonInput
                                     label="Name"
                                     labelPlacement="stacked"
                                     type="text"
                                     value={name}
                                     onIonChange={(e) => setName("" + e.target.value)}
+                                />
+                                <IonInput
+                                    label="Description"
+                                    labelPlacement="stacked"
+                                    type="text"
+                                    value={description}
+                                    onIonChange={(e) => setDescription("" + e.target.value)}
                                 />
                             </div>
                             <IonButton type={"button"} className={"w-full"} onClick={() => onChangeFilePropertiesSubmit()}>Submit Changes To File Properties</IonButton>
