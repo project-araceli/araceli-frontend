@@ -35,6 +35,7 @@ const FileManagerPage = () => {
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
     const [name, setName] = useState<string | undefined>();
     const [fileToBeEdited, setFileToBeEdited] = useState<IResource | undefined>();
+    const [initialCurrentFolder, setInitialCurrentFolder] = useState<IResource>({} as IResource);
 
     const {
         resources,
@@ -104,7 +105,6 @@ const FileManagerPage = () => {
                     if (currentFolder.children) {
                         setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
                         setRefreshing(!refreshing);
-                        setName(undefined);
                     }
                 })
                 .catch(err => console.log(err.message));
@@ -170,30 +170,39 @@ const FileManagerPage = () => {
         setIsEditFileOpen(true);
         setFileToBeEdited(item);
         setName(item.name);
+        setInitialCurrentFolder(currentFolder);
     }
 
-    const onEditSubmit = () => {
-        console.log("file ", fileToBeEdited);
-        console.log("currentFolder ", currentFolder);
-        if (fileToBeEdited && name !== fileToBeEdited.name) {
-            console.log("NAME")
-            apiClient.patch(`/resource/${fileToBeEdited.resourceId}/name`, {}, {
-                params: {name: name},
-                headers: {Authorization: "TOKEN"}
-            })
-                .then(res => {
-                    setName(undefined);
-                })
-                .catch(err => console.log(err.message));
-        }
-        if (fileToBeEdited && currentFolder) {
-            console.log("LOC")
-            apiClient.patch(`/resource/${fileToBeEdited.resourceId}/path`, {},{
+    const onChangeFileLocationSubmit = () => {
+        if (fileToBeEdited && currentFolder && initialCurrentFolder !== currentFolder) {
+            apiClient.patch(`/resource/${fileToBeEdited.resourceId}/path`, {}, {
                 params: {newParentId: currentFolder.resourceId},
                 headers: {Authorization: "TOKEN"}
             })
                 .then((res) => {
+                    if (currentFolder.children) {
+                        setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
+                    }
                     setFileToBeEdited(undefined);
+                    setIsEditFileOpen(false);
+                    setRefreshing(!refreshing);
+                })
+                .catch(err => console.log(err.message));
+        }
+    }
+
+    const onChangeFilePropertiesSubmit = () => {
+        console.log("file ", fileToBeEdited);
+        console.log("currentFolder ", currentFolder);
+        if (fileToBeEdited && name !== fileToBeEdited.name) {
+            apiClient.patch(`/resource/${fileToBeEdited.resourceId}/name`, {}, {
+                params: {name: name},
+                headers: {Authorization: "TOKEN"}
+            })
+                .then((res) => {
+                    if (currentFolder.children) {
+                        setCurrentFolder({...currentFolder, children: [...currentFolder.children.filter(x => x.resourceId === res.data), res.data]});
+                    }
                     setIsEditFileOpen(false);
                     setRefreshing(!refreshing);
                 })
@@ -269,18 +278,22 @@ const FileManagerPage = () => {
                 </Modal>
                 <Modal title={"Edit"} isOpen={isEditFileOpen} setIsOpen={setIsEditFileOpen} backgroundColor={"black"}>
                     <IonContent className="ion-padding">
-                        <IonTitle>Change Name</IonTitle>
-                        <div className={"mx-5 mb-10"}>
-                            <IonInput
-                                label="Name"
-                                labelPlacement="stacked"
-                                type="text"
-                                value={name}
-                                onIonChange={(e) => setName("" + e.target.value)}
-                            />
+                        <div className={"mb-10 w-full"}>
+                            <IonTitle>Change File Properties</IonTitle>
+                            <div className={"mx-5"}>
+                                <IonInput
+                                    label="Name"
+                                    labelPlacement="stacked"
+                                    type="text"
+                                    value={name}
+                                    onIonChange={(e) => setName("" + e.target.value)}
+                                />
+                            </div>
+                            <IonButton type={"button"} className={"w-full"} onClick={() => onChangeFilePropertiesSubmit()}>Submit Changes To File Properties</IonButton>
                         </div>
+
                         {fileToBeEdited && fileToBeEdited.type === ResourceType.FILE ? <div>
-                            <IonTitle>Move File</IonTitle>
+                            <IonTitle>Move File / Change File Location</IonTitle>
                             <div className={"flex flex-row justify-between px-5 mt-3"}>
                                 <IonChip
                                     color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
@@ -290,9 +303,8 @@ const FileManagerPage = () => {
                             <FileList resources={currentFolder.children?.filter(x => x.type === ResourceType.FOLDER)}
                                       handleOnClickFileListItem={handleOnClickFileListItem}
                                       deleteFile={deleteFile}/>
+                            <IonButton type={"button"} className={"w-full mt-10"} onClick={() => onChangeFileLocationSubmit()}>Submit Changes To File Location</IonButton>
                         </div> : <></>}
-                        <IonButton type={"button"} className={"w-full mt-10"} onClick={() => onEditSubmit()}>Submit
-                            Edit</IonButton>
                     </IonContent>
                 </Modal>
             </IonContent>
