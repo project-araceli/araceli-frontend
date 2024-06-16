@@ -26,3 +26,15 @@ export interface IResource {
     description?: string;
     children?: IResource[];
 }
+
+export interface IUser {
+    userId: number;
+    username: string;
+}
+
+export interface IMessage {
+    key: string;
+    sender: IUser;
+    content: string;
+    time: string;
+}
