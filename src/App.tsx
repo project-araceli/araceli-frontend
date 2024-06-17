@@ -29,6 +29,7 @@ import TodoListPage from "./pages/todo-list-page/TodoListPage";
 import LoginPage from "./pages/login-page/LoginPage";
 import RegisterPage from "./pages/register-page/RegisterPage";
 import FileManagerPage from "./pages/file-manager-page/FileManagerPage";
+import ChatPage from "./pages/chat-page/ChatPage";
 
 setupIonicReact();
 
@@ -69,6 +70,9 @@ const App = () => {
                         </Route>
                         <Route path={"/signup"}>
                             <RegisterPage/>
+                        </Route>
+                        <Route path={"/chat"}>
+                            <ChatPage/>
                         </Route>
                     </IonRouterOutlet>
                 </IonSplitPane>
