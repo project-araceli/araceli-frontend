@@ -24,11 +24,13 @@ import useResources from "../../hooks/useResources";
 import {ResourceType} from "../../common/global-constants";
 import {addOutline, documentOutline, folderOutline, move, search} from "ionicons/icons";
 import Modal from "../../components/modal/Modal";
+import ContentPreview from "../../components/content-preview/ContentPreview";
 
 const FileManagerPage = () => {
     const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
     const [isAddFolderOpen, setIsAddFolderOpen] = useState<boolean>(false);
     const [isEditFileOpen, setIsEditFileOpen] = useState<boolean>(false);
+    const [isFilePreviewOpen, setIsFilePreviewOpen] = useState<boolean>(false);
     const [showPath, setShowPath] = useState<boolean>(false);
 
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
@@ -36,15 +38,18 @@ const FileManagerPage = () => {
     const [description, setDescription] = useState<string>("");
     const [fileToBeEdited, setFileToBeEdited] = useState<IResource | undefined>();
     const [initialCurrentFolder, setInitialCurrentFolder] = useState<IResource>({} as IResource);
+    const [selectedFile, setSelectedFile] = useState<IResource>({} as IResource);
 
     const {
         resources,
         refreshing,
         setRefreshing,
         search,
+        error,
         setSearch,
         fileExtension,
-        setFileExtension
+        setFileExtension,
+        setError
     } = useResources();
     const rootFolder: IResource = {
         resourceId: "root",
@@ -76,20 +81,26 @@ const FileManagerPage = () => {
         const formData = new FormData();
 
         if (acceptedFiles.length !== 0) {
-            formData.append("file", acceptedFiles[0]);
-            formData.append("name", acceptedFiles[0].name);
-            formData.append("parentId", currentFolder.resourceId);
-            formData.append("contentType", acceptedFiles[0].type);
-            apiClient.post("/resource", formData, {headers: {Authorization: "TOKEN"}})
-                .then(res => {
-                    setIsAddFileOpen(false);
-                    if (currentFolder.children) {
-                        setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
-                        setRefreshing(!refreshing);
-                        acceptedFiles.pop(); // reset files in drop zone
-                    }
-                })
-                .catch(err => console.log(err.message));
+            if ((acceptedFiles[0].size / 1_000_000) < 10) {
+                formData.append("file", acceptedFiles[0]);
+                formData.append("name", acceptedFiles[0].name);
+                formData.append("parentId", currentFolder.resourceId);
+                formData.append("contentType", acceptedFiles[0].type);
+                apiClient.post("/resource", formData, {headers: {Authorization: "TOKEN"}})
+                    .then(res => {
+                        setIsAddFileOpen(false);
+                        if (currentFolder.children) {
+                            setCurrentFolder({...currentFolder, children: [...currentFolder.children, res.data]});
+                            setRefreshing(!refreshing);
+                            setError(undefined);
+                            acceptedFiles.pop(); // reset files in drop zone
+                        }
+                    })
+                    .catch(err => console.log(err.message));
+            } else {
+                setError("Error: Max. File size is 10MB.");
+                acceptedFiles.pop();
+            }
         }
     }
 
@@ -119,6 +130,9 @@ const FileManagerPage = () => {
                 setLastFolders([currentFolder]);
             }
             setCurrentFolder(item);
+        } else {
+            setSelectedFile(item);
+            setIsFilePreviewOpen(true);
         }
     }
 
@@ -216,7 +230,10 @@ const FileManagerPage = () => {
                 })
                     .then((res) => {
                         if (currentFolder.children) {
-                            setCurrentFolder({...currentFolder, children: [...currentFolder.children.filter(x => x.resourceId === res.data), res.data]});
+                            setCurrentFolder({
+                                ...currentFolder,
+                                children: [...currentFolder.children.filter(x => x.resourceId === res.data), res.data]
+                            });
                         }
                         setIsEditFileOpen(false);
                         setRefreshing(!refreshing);
@@ -271,6 +288,7 @@ const FileManagerPage = () => {
                                     one file</p>
                             </div>
                             <aside className={"mt-10"}>
+                                {error && <div>{error}</div>}
                                 <h4>File selected for upload:</h4>
                                 <ul><b>{acceptedFiles.map(x => x.name)}</b></ul>
                             </aside>
@@ -312,7 +330,9 @@ const FileManagerPage = () => {
                                     onIonChange={(e) => setDescription("" + e.target.value)}
                                 />
                             </div>
-                            <IonButton type={"button"} className={"w-full"} onClick={() => onChangeFilePropertiesSubmit()}>Submit Changes To File Properties</IonButton>
+                            <IonButton type={"button"} className={"w-full"}
+                                       onClick={() => onChangeFilePropertiesSubmit()}>Submit Changes To File
+                                Properties</IonButton>
                         </div>
 
                         {fileToBeEdited && fileToBeEdited.type === ResourceType.FILE ? <div>
@@ -326,8 +346,18 @@ const FileManagerPage = () => {
                             <FileList resources={currentFolder.children?.filter(x => x.type === ResourceType.FOLDER)}
                                       handleOnClickFileListItem={handleOnClickFileListItem}
                                       deleteFile={deleteFile}/>
-                            <IonButton type={"button"} className={"w-full mt-10"} onClick={() => onChangeFileLocationSubmit()}>Submit Changes To File Location</IonButton>
+                            <IonButton type={"button"} className={"w-full mt-10"}
+                                       onClick={() => onChangeFileLocationSubmit()}>Submit Changes To File
+                                Location</IonButton>
                         </div> : <></>}
+                    </IonContent>
+                </Modal>
+                <Modal title={"File Preview: " + selectedFile?.name} isOpen={isFilePreviewOpen}
+                       setIsOpen={setIsFilePreviewOpen}>
+                    <IonContent className="ion-padding">
+                        <div className={"w-full h-full flex justify-center"}>
+                            <ContentPreview resource={selectedFile}/>
+                        </div>
                     </IonContent>
                 </Modal>
             </IonContent>
