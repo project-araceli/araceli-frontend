@@ -7,6 +7,8 @@ import {useEffect, useState} from "react";
 import {IResource} from "../common/models";
 import apiClient from "../common/api-client";
 import {CanceledError} from "axios";
+import {useCookies} from "react-cookie";
+import {useHistory} from "react-router-dom";
 
 const useResources = () => {
     const [resources, setResources] = useState<IResource[]>([]);
@@ -15,12 +17,19 @@ const useResources = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState<string | null>();
     const [fileExtension, setFileExtension] = useState<string | null>();
+    const [cookies, setCookies] = useCookies();
+    const navigate = useHistory();
+
 
     useEffect(() => {
+        if (cookies['auth-token']) {
+            navigate.push("/login")
+        }
+
         console.log("REFRESHED");
         console.log(fileExtension);
         const controller = new AbortController();
-        apiClient.get("/resource", {params: {search: search, fileExtension: fileExtension === "all" ? null : fileExtension}, headers: {Authorization: "TOKEN"}, signal: controller.signal})
+        apiClient.get("/resource", {params: {search: search, fileExtension: fileExtension === "all" ? null : fileExtension}, headers: { Authorization: `Bearer ${cookies['auth-token']}`}, signal: controller.signal})
             .then(res => {setResources(res.data)})
             .catch(err => {
                 if (err instanceof CanceledError) return;

@@ -18,8 +18,9 @@ import {
 import apiClient from "../../common/api-client";
 import Seperator from "../../components/seperator/Seperator";
 import {GoogleLogin} from "@react-oauth/google";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useCookies} from "react-cookie";
+import {useHistory} from "react-router-dom";
 
 const RegisterPage = () => {
     const [username, setUsername] = useState<string>();
@@ -27,6 +28,13 @@ const RegisterPage = () => {
     const [imageUrl, setImageUrl] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [cookies, setCookie] = useCookies();
+    const navigate = useHistory();
+
+    useEffect(() => {
+        if(cookies['auth-token']) {
+            navigate.push("/file-manager")
+        }
+    }, []);
 
     return (
         <>
@@ -71,7 +79,7 @@ const RegisterPage = () => {
                         <IonGrid className={"grid gap-2"}>
                             <IonButton size={'small'} className={'w-full font-bold'} onClick={() => {
                                 apiClient.post("/auth/register", {username: username, email: email, imageUrl: imageUrl, password: password})
-                                    .then(res => setCookie('auth-token', res.data, {
+                                    .then(res => setCookie('auth-token', res.data.token, {
                                         path: "/",
                                         expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
                                         secure: true
@@ -84,8 +92,8 @@ const RegisterPage = () => {
                                 <GoogleLogin
                                     onSuccess={credentialResponse => {
                                         console.log(credentialResponse);
-                                        apiClient.post("/auth/googleAuthenticate", {},{headers: {Authorization: credentialResponse.credential}})
-                                            .then(res => setCookie('auth-token', res.data, {
+                                        apiClient.post("/auth/googleAuthenticate", {token: credentialResponse.credential})
+                                            .then(res => setCookie('auth-token', res.data.token, {
                                                 path: "/",
                                                 expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
                                                 secure: true
