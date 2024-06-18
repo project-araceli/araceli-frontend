@@ -91,12 +91,12 @@ const FileManagerPage = () => {
 
         if (acceptedFiles.length !== 0) {
             if ((acceptedFiles[0].size / 1_000_000) < 10) {
-                console.log(acceptedFiles[0])
+                let type:string = acceptedFiles[0].type ? acceptedFiles[0].type : "text/plain"
 
                 formData.append("file", acceptedFiles[0]);
                 formData.append("name", acceptedFiles[0].name);
                 formData.append("parentId", currentFolder.resourceId);
-                formData.append("contentType", acceptedFiles[0].type);
+                formData.append("contentType", type);
                 apiClient.post("/resource", formData, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                     .then(res => {
                         setIsAddFileOpen(false);
