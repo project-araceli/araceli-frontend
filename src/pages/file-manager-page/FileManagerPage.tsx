@@ -28,6 +28,8 @@ import ContentPreview from "../../components/content-preview/ContentPreview";
 import {useCookies} from "react-cookie";
 import {useHistory} from "react-router-dom";
 import useUsers from "../../hooks/useUsers";
+import FileListShared from "../../components/file-list/FileListShared";
+import useSharedResources from "../../hooks/useSharedResources";
 
 const FileManagerPage = () => {
     const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
@@ -47,6 +49,7 @@ const FileManagerPage = () => {
     const [fileToBeShared, setFileToBeShared] = useState<IResource | undefined>();
 
     const {users} = useUsers();
+    const {sharedResources} = useSharedResources()
     const {
         resources,
         refreshing,
@@ -313,6 +316,8 @@ const FileManagerPage = () => {
                 </div>
                 <FileList resources={currentFolder.children} handleOnClickFileListItem={handleOnClickFileListItem}
                           deleteFile={deleteFile} showPath={showPath} onClickEditButton={onClickEditButton} onClickShareButton={onClickShareButton}/>
+                <IonTitle>Shared:</IonTitle>
+                <FileListShared resources={sharedResources} handleOnClickFileListItem={handleOnClickFileListItem}/>
                 <Modal title={"Add File"} isOpen={isAddFileOpen} setIsOpen={setIsAddFileOpen}>
                     <IonContent className="ion-padding">
                         <div>
