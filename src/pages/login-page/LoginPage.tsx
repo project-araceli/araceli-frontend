@@ -25,34 +25,14 @@ import LoginButton from "../../components/login-button/LoginButton";
 const LoginPage = () => {
     const [user, setUser] = useState();
     const [cookies, setCookie] = useCookies();
-    const [email, setEmail] = useState<string>();
+    const [username, setUsername] = useState<string>();
     const [password, setPassword] = useState<string>();
-    // const login = useGoogleLogin({
-    //     onSuccess: (codeResponse) => {
-    //
-    //         axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${codeResponse.access_token}`,
-    //                 Accept: 'application/json'
-    //
-    //             },
-    //         })
-    //             .then(res => setUser(res.data))
-    //     },
-    // });
-    //
-    // useEffect(() => {
-    //     console.log(user)
-    // }, [user]);
 
-    // const oneTapLogin = useGoogleOneTapLogin({
-    //     onSuccess: credentialResponse => {
-    //         console.log(credentialResponse);
-    //     },
-    //     onError: () => {
-    //         console.log('Login Failed');
-    //     },
-    // });
+    useEffect(() => {
+        if(cookies['auth-token']) {
+
+        }
+    }, []);
 
     return (
         <>
@@ -65,9 +45,9 @@ const LoginPage = () => {
                     <IonCardContent>
                         <IonList inset={true} lines={"inset"}>
                             <IonItem>
-                                <IonLabel position="floating">Username / E-Mail</IonLabel>
-                                <IonInput type={"text"} value={email} clearInput={true} onIonInput={(ev: Event) => {
-                                    setEmail((ev.target as HTMLIonInputElement).value as string)
+                                <IonLabel position="floating">Username</IonLabel>
+                                <IonInput type={"text"} value={username} clearInput={true} onIonInput={(ev: Event) => {
+                                    setUsername((ev.target as HTMLIonInputElement).value as string)
                                 }}/>
                             </IonItem>
 
@@ -82,8 +62,8 @@ const LoginPage = () => {
 
                         <IonGrid className={"grid gap-2"}>
                             <IonButton size={'small'} className={'w-full font-bold'} onClick={() => {
-                                apiClient.post("/auth/login", {email: email, password: password})
-                                    .then(res => setCookie('auth-token', res.data, {
+                                apiClient.post("/auth/authenticate", {username: username, password: password})
+                                    .then(res => setCookie('auth-token', res.data.token, {
                                         path: "/",
                                         expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
                                         secure: true
@@ -94,8 +74,8 @@ const LoginPage = () => {
                                 <GoogleLogin
                                     onSuccess={credentialResponse => {
                                         console.log(credentialResponse);
-                                        apiClient.post("/auth/googleAuthenticate", {},{headers: {Authorization: credentialResponse.credential}})
-                                            .then(res => setCookie('auth-token', res.data, {
+                                        apiClient.post("/auth/googleAuthenticate", {token: credentialResponse.credential})
+                                            .then(res => setCookie('auth-token', res.data.token, {
                                                 path: "/",
                                                 expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
                                                 secure: true
