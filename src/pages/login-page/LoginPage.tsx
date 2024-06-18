@@ -15,6 +15,7 @@ import apiClient from "../../common/api-client";
 import { useCookies } from 'react-cookie';
 import * as path from "node:path";
 import LoginButton from "../../components/login-button/LoginButton";
+import { useHistory } from "react-router-dom";
 
 /**
  * Project: araceli-frontend
@@ -27,10 +28,11 @@ const LoginPage = () => {
     const [cookies, setCookie] = useCookies();
     const [username, setUsername] = useState<string>();
     const [password, setPassword] = useState<string>();
+    const navigate = useHistory();
 
     useEffect(() => {
         if(cookies['auth-token']) {
-
+            navigate.push("/file-manager")
         }
     }, []);
 

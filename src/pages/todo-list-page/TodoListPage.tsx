@@ -24,6 +24,8 @@ import TodoListItem from "../../components/todo-list-item/TodoListItem";
 import {ITodoList, ITodoListItem} from "../../common/models";
 import {useTodoLists} from "../../hooks/useTodoLists";
 import apiClient from "../../common/api-client";
+import {useCookies} from "react-cookie";
+import {useHistory} from "react-router-dom";
 
 const TodoListPage = () => {
 
@@ -39,7 +41,15 @@ const TodoListPage = () => {
     const [title, setTitle] = useState<string>("");
     const [errorOutput, setErrorOutput] = useState<string | undefined>();
 
+    const [cookies, setCookies] = useCookies();
+    const navigate = useHistory();
+
     useEffect(() => {
+
+        if (cookies['auth-token']) {
+            navigate.push("/login")
+        }
+
         if (todoLists.length > 0) {
             setSelectedTodoList(selectedTodoList === undefined ? todoLists[0] : selectedTodoList);
             initCompletedAndNotCompletedTasks();
@@ -76,7 +86,8 @@ const TodoListPage = () => {
             apiClient.post("/todolist", {title: title}, {
                 params: {
                     userId: 1
-                }
+                },
+                headers: { Authorization: `Bearer ${cookies['auth-token']}`}
             })
                 .then(res => {
                     setErrorOutput(undefined);
@@ -95,7 +106,10 @@ const TodoListPage = () => {
                 name: title,
                 description: null,
                 isDone: false,
-            })
+            }, {
+                headers: { Authorization: `Bearer ${cookies['auth-token']}`}
+            }
+                )
                 .then(res => {
                     let todoListsWithoutSelectedTodoList = todoLists.filter(x => x.todoListId !== selectedTodoList.todoListId);
                     setTodoLists([...todoListsWithoutSelectedTodoList, {...selectedTodoList, items: res.data}])
@@ -111,7 +125,7 @@ const TodoListPage = () => {
 
     const deleteTask = (itemId: string) => {
         if (selectedTodoList) {
-            apiClient.delete(`/todolist/item/${itemId}`)
+            apiClient.delete(`/todolist/item/${itemId}`, {headers: { Authorization: `Bearer ${cookies['auth-token']}`}})
                 .then(res => {
                     let todoListsWithoutSelectedTodoList = todoLists.filter(x => x.todoListId !== selectedTodoList.todoListId);
 
@@ -132,7 +146,7 @@ const TodoListPage = () => {
 
     const toggleIsDone = (itemId: string) => {
         if (selectedTodoList) {
-            apiClient.patch(`/todolist/item/${itemId}/toggleDone`)
+            apiClient.patch(`/todolist/item/${itemId}/toggleDone`, {headers: { Authorization: `Bearer ${cookies['auth-token']}`}})
                 .then()
                 .catch(err => {
                     setErrorOutput(err.message);

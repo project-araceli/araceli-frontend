@@ -18,8 +18,9 @@ import {
 import apiClient from "../../common/api-client";
 import Seperator from "../../components/seperator/Seperator";
 import {GoogleLogin} from "@react-oauth/google";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useCookies} from "react-cookie";
+import {useHistory} from "react-router-dom";
 
 const RegisterPage = () => {
     const [username, setUsername] = useState<string>();
@@ -27,6 +28,13 @@ const RegisterPage = () => {
     const [imageUrl, setImageUrl] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [cookies, setCookie] = useCookies();
+    const navigate = useHistory();
+
+    useEffect(() => {
+        if(cookies['auth-token']) {
+            navigate.push("/file-manager")
+        }
+    }, []);
 
     return (
         <>
