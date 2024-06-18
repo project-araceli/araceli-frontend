@@ -7,15 +7,17 @@ import {useEffect, useState} from "react";
 import apiClient from "../../common/api-client";
 import {IonImg} from "@ionic/react";
 import {IResource} from "../../common/models";
+import {useCookies} from "react-cookie";
 
 const ContentPreview = ({resource}: { resource: IResource }) => {
 
     const [content, setContent] = useState<string>("");
+    const [cookies, setCookies] = useCookies();
 
     useEffect(() => {
         apiClient.get("/resource/download/" + resource.resourceId, {
             responseType: "blob",
-            headers: {Authorization: "TOKEN"}
+        headers: {Authorization: `Bearer ${cookies['auth-token']}`}
         })
             .then(res => {
                 const file = new Blob([res.data], {type: resource.contentType});
