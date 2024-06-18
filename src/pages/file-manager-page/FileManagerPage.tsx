@@ -91,7 +91,7 @@ const FileManagerPage = () => {
 
         if (acceptedFiles.length !== 0) {
             if ((acceptedFiles[0].size / 1_000_000) < 10) {
-                let type:string = acceptedFiles[0].type ? acceptedFiles[0].type : "text/plain"
+                let type:string = acceptedFiles[0].type ? acceptedFiles[0].type : "text/markdown"
 
                 formData.append("file", acceptedFiles[0]);
                 formData.append("name", acceptedFiles[0].name);
