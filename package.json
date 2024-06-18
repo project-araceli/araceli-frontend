@@ -31,8 +31,10 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-google-button": "^0.8.0",
+    "react-markdown": "^9.0.1",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
+    "remark-gfm": "^4.0.0",
     "ws": "^8.17.0"
   },
   "devDependencies": {

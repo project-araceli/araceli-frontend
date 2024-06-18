@@ -8,6 +8,8 @@ import apiClient from "../../common/api-client";
 import {IonImg} from "@ionic/react";
 import {IResource} from "../../common/models";
 import {useCookies} from "react-cookie";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const ContentPreview = ({resource}: { resource: IResource }) => {
 
@@ -37,7 +39,7 @@ const ContentPreview = ({resource}: { resource: IResource }) => {
     const renderContent = () => {
         if (resource.contentType && resource.contentType.startsWith("text")) {
             console.log(resource.contentType)
-                return <p>{content}</p>;
+                return <ReactMarkdown>{content}</ReactMarkdown>;
         }
         if (resource.contentType && resource.contentType.startsWith("image")) {
             return <IonImg src={content} alt={"This content cannot be previewed on your device."}/>;
