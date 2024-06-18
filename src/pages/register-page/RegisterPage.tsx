@@ -27,12 +27,16 @@ const RegisterPage = () => {
     const [email, setEmail] = useState<string>();
     const [imageUrl, setImageUrl] = useState<string>();
     const [password, setPassword] = useState<string>();
-    const [cookies, setCookie] = useCookies();
+    const [cookies, setCookie, removeCookie] = useCookies();
     const navigate = useHistory();
 
     useEffect(() => {
-        if(cookies['auth-token']) {
-            navigate.push("/file-manager")
+        if (cookies['auth-token']) {
+            apiClient.get("/user", {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
+                .then(() => navigate.push("/file-manager"))
+                .catch((err) => {
+                    removeCookie('auth-token')
+                })
         }
     }, []);
 

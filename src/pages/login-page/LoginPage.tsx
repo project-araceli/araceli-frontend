@@ -16,6 +16,8 @@ import { useCookies } from 'react-cookie';
 import * as path from "node:path";
 import LoginButton from "../../components/login-button/LoginButton";
 import { useHistory } from "react-router-dom";
+import isLoggedIn from "../../hooks/accountHelper";
+import useResources from "../../hooks/useResources";
 
 /**
  * Project: araceli-frontend
@@ -25,14 +27,18 @@ import { useHistory } from "react-router-dom";
 
 const LoginPage = () => {
     const [user, setUser] = useState();
-    const [cookies, setCookie] = useCookies();
+    const [cookies, setCookie, removeCookie] = useCookies();
     const [username, setUsername] = useState<string>();
     const [password, setPassword] = useState<string>();
     const navigate = useHistory();
 
     useEffect(() => {
-        if(cookies['auth-token']) {
-            navigate.push("/file-manager")
+        if (cookies['auth-token']) {
+            apiClient.get("/user", {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
+                .then(() => navigate.push("/file-manager"))
+                .catch((err) => {
+                    removeCookie('auth-token')
+                })
         }
     }, []);
 

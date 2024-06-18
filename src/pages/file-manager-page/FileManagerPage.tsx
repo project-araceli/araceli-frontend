@@ -7,9 +7,9 @@
 import React, {useEffect, useState} from 'react';
 import {
     IonButton,
-    IonButtons,
+    IonButtons, IonCard,
     IonChip,
-    IonContent,
+    IonContent, IonGrid,
     IonHeader, IonIcon, IonInput,
     IonMenuButton,
     IonPage, IonSearchbar, IonSelect, IonSelectOption,
@@ -69,7 +69,7 @@ const FileManagerPage = () => {
 
     useEffect(() => {
 
-        if(cookies['auth-token']) {
+        if(!cookies['auth-token']) {
             navigate.push("/login")
         }
 
@@ -91,6 +91,8 @@ const FileManagerPage = () => {
 
         if (acceptedFiles.length !== 0) {
             if ((acceptedFiles[0].size / 1_000_000) < 10) {
+                console.log(acceptedFiles[0])
+
                 formData.append("file", acceptedFiles[0]);
                 formData.append("name", acceptedFiles[0].name);
                 formData.append("parentId", currentFolder.resourceId);

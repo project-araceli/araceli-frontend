@@ -36,6 +36,7 @@ const ContentPreview = ({resource}: { resource: IResource }) => {
 
     const renderContent = () => {
         if (resource.contentType && resource.contentType.startsWith("text")) {
+            console.log(resource.contentType)
                 return <p>{content}</p>;
         }
         if (resource.contentType && resource.contentType.startsWith("image")) {
