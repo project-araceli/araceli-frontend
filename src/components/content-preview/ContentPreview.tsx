@@ -39,7 +39,7 @@ const ContentPreview = ({resource}: { resource: IResource }) => {
     const renderContent = () => {
         if (resource.contentType && resource.contentType.startsWith("text")) {
             console.log(resource.contentType)
-                return <ReactMarkdown>{content}</ReactMarkdown>;
+                return <ReactMarkdown children={content} remarkPlugins={[remarkGfm]}/>;
         }
         if (resource.contentType && resource.contentType.startsWith("image")) {
             return <IonImg src={content} alt={"This content cannot be previewed on your device."}/>;
