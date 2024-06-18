@@ -6,7 +6,14 @@
 
 import React, {useEffect, useState} from 'react';
 import {IonButton, IonContent, IonIcon, IonItem, IonLabel, IonPopover} from "@ionic/react";
-import {documentOutline, downloadOutline, ellipsisHorizontalOutline, folderOutline, trashOutline} from "ionicons/icons";
+import {
+    documentOutline,
+    downloadOutline,
+    ellipsisHorizontalOutline,
+    folderOutline,
+    shareSocialOutline,
+    trashOutline
+} from "ionicons/icons";
 import {IResource} from "../../../common/models";
 import {ResourceType} from "../../../common/global-constants";
 import apiClient from "../../../common/api-client";
@@ -20,9 +27,10 @@ interface IFileListItemProps {
     deleteFile: (item: IResource) => void;
     showPath?: boolean;
     onClickEditButton?: (item: IResource) => void;
+    onClickShareButton?: (item: IResource) => void;
 }
 
-const FileListItem = ({item, handleOnClickFileListItem, deleteFile, showPath = false, onClickEditButton}: IFileListItemProps) => {
+const FileListItem = ({item, handleOnClickFileListItem, deleteFile, showPath = false, onClickEditButton, onClickShareButton}: IFileListItemProps) => {
     const [path, setPath] = useState<string>();
     const [cookies, setCookies] = useCookies();
     const navigate = useHistory();
@@ -62,6 +70,7 @@ const FileListItem = ({item, handleOnClickFileListItem, deleteFile, showPath = f
             {item.type === ResourceType.FILE ? <IonButton onClick={downloadFile}><IonIcon icon={downloadOutline}/></IonButton> : <></>}
             <IonButton onClick={(e) => {e.stopPropagation(); deleteFile(item)}}><IonIcon icon={trashOutline}/></IonButton>
             <IonButton onClick={(e) => {e.stopPropagation(); onClickEditButton && onClickEditButton(item)}}><IonIcon icon={ellipsisHorizontalOutline}/></IonButton>
+            <IonButton onClick={(e) => {e.stopPropagation(); onClickShareButton && onClickShareButton(item)}}><IonIcon icon={shareSocialOutline}/></IonButton>
         </IonItem>
     );
 };

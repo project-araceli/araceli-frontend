@@ -83,11 +83,14 @@ const RegisterPage = () => {
                         <IonGrid className={"grid gap-2"}>
                             <IonButton size={'small'} className={'w-full font-bold'} onClick={() => {
                                 apiClient.post("/auth/register", {username: username, email: email, imageUrl: imageUrl, password: password})
-                                    .then(res => setCookie('auth-token', res.data.token, {
-                                        path: "/",
-                                        expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
-                                        secure: true
-                                    }))
+                                    .then(res => {
+                                        setCookie('auth-token', res.data.token, {
+                                            path: "/",
+                                            expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
+                                            secure: true
+                                        })
+                                        navigate.push("/file-manager")
+                                    })
                             }}>REGISTER</IonButton>
 
                             <Seperator text={"or"}/>
@@ -97,11 +100,14 @@ const RegisterPage = () => {
                                     onSuccess={credentialResponse => {
                                         console.log(credentialResponse);
                                         apiClient.post("/auth/googleAuthenticate", {token: credentialResponse.credential})
-                                            .then(res => setCookie('auth-token', res.data.token, {
-                                                path: "/",
-                                                expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
-                                                secure: true
-                                            }))
+                                            .then(res => {
+                                                setCookie('auth-token', res.data.token, {
+                                                    path: "/",
+                                                    expires: new Date((new Date()).setDate((new Date()).getDate() + 30)),
+                                                    secure: true
+                                                })
+                                                navigate.push("/file-manager")
+                                            })
                                         console.log(credentialResponse);
                                     }}
                                     shape="circle"

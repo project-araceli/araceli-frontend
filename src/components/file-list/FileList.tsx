@@ -15,14 +15,15 @@ interface IFileListProps {
     deleteFile: (item: IResource) => void;
     showPath?: boolean;
     onClickEditButton?: (item: IResource) => void;
+    onClickShareButton?: (item: IResource) => void;
 }
 
-const FileList = ({resources, handleOnClickFileListItem, deleteFile, showPath = false, onClickEditButton}: IFileListProps) => {
+const FileList = ({resources, handleOnClickFileListItem, deleteFile, showPath = false, onClickEditButton, onClickShareButton}: IFileListProps) => {
     return (
         <>
             {
                 resources && resources.length > 0 ? <IonList lines={"full"} inset mode={"ios"}>
-                    {resources.map(x => <FileListItem key={x.resourceId} item={x} handleOnClickFileListItem={handleOnClickFileListItem} deleteFile={deleteFile} showPath={showPath} onClickEditButton={onClickEditButton}/>)}
+                    {resources.map(x => <FileListItem key={x.resourceId} item={x} handleOnClickFileListItem={handleOnClickFileListItem} deleteFile={deleteFile} showPath={showPath} onClickEditButton={onClickEditButton} onClickShareButton={onClickShareButton}/>)}
                 </IonList>
                     : <IonText className={"m-4"}>There is no content in this folder.</IonText>
             }

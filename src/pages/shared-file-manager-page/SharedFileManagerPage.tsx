@@ -1,15 +1,15 @@
 /**
  * Project: araceli-frontend
- * Created by: Nico Bulut
+ * Created by: Nico Bulut, Michael Hütter
  * Created at: 28.05.24
  */
 
 import React, {useEffect, useState} from 'react';
 import {
     IonButton,
-    IonButtons,
+    IonButtons, IonCard,
     IonChip,
-    IonContent,
+    IonContent, IonGrid,
     IonHeader, IonIcon, IonInput,
     IonMenuButton,
     IonPage, IonSearchbar, IonSelect, IonSelectOption,
@@ -19,7 +19,7 @@ import {
 import FileList from "../../components/file-list/FileList";
 import {useDropzone} from "react-dropzone";
 import apiClient from "../../common/api-client";
-import {IResource} from "../../common/models";
+import {IResource, IUser} from "../../common/models";
 import useResources from "../../hooks/useResources";
 import {ResourceType} from "../../common/global-constants";
 import {addOutline, documentOutline, folderOutline, move, search} from "ionicons/icons";
@@ -28,8 +28,10 @@ import ContentPreview from "../../components/content-preview/ContentPreview";
 import {useCookies} from "react-cookie";
 import {useHistory} from "react-router-dom";
 import useUsers from "../../hooks/useUsers";
+import useSharedResources from "../../hooks/useSharedResources";
+import FileListShared from "../../components/file-list/FileListShared";
 
-const FileManagerPage = () => {
+const SharedFileManagerPage = () => {
     const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
     const [isAddFolderOpen, setIsAddFolderOpen] = useState<boolean>(false);
     const [isEditFileOpen, setIsEditFileOpen] = useState<boolean>(false);
@@ -39,14 +41,17 @@ const FileManagerPage = () => {
 
     const {acceptedFiles, getRootProps, getInputProps} = useDropzone({maxFiles: 1});
     const [name, setName] = useState<string>("");
+    const [selectedUser, setSelectedUser] = useState<String>();
     const [description, setDescription] = useState<string>("");
     const [fileToBeEdited, setFileToBeEdited] = useState<IResource | undefined>();
+    const [fileToBeShared, setFileToBeShared] = useState<IResource | undefined>();
     const [initialCurrentFolder, setInitialCurrentFolder] = useState<IResource>({} as IResource);
     const [selectedFile, setSelectedFile] = useState<IResource>({} as IResource);
-    const [selectedUser, setSelectedUser] = useState<string>();
-    const [fileToBeShared, setFileToBeShared] = useState<IResource | undefined>();
 
     const {users} = useUsers();
+    const {
+        sharedResources,
+    } = useSharedResources()
     const {
         resources,
         refreshing,
@@ -70,13 +75,9 @@ const FileManagerPage = () => {
     const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
     const fileExtensionOptions = ["all", ".png", ".jpeg", ".docx", ".txt", ".md"];
     const [cookies, setCookies] = useCookies();
-    const navigate = useHistory();
+    const [displayShared, setDisplayShared] = useState<boolean>(false);
 
     useEffect(() => {
-
-        if(cookies['auth-token']) {
-            navigate.push("/login")
-        }
 
         const previousCurrentFolder = {...currentFolder};
         setCurrentFolder(rootFolder);
@@ -96,10 +97,12 @@ const FileManagerPage = () => {
 
         if (acceptedFiles.length !== 0) {
             if ((acceptedFiles[0].size / 1_000_000) < 10) {
+                let type:string = acceptedFiles[0].type ? acceptedFiles[0].type : "text/markdown"
+
                 formData.append("file", acceptedFiles[0]);
                 formData.append("name", acceptedFiles[0].name);
                 formData.append("parentId", currentFolder.resourceId);
-                formData.append("contentType", acceptedFiles[0].type);
+                formData.append("contentType", type);
                 apiClient.post("/resource", formData, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                     .then(res => {
                         setIsAddFileOpen(false);
@@ -210,9 +213,9 @@ const FileManagerPage = () => {
     const shareFileWithUser = () => {
         if (fileToBeShared && selectedUser) {
             const formData = new FormData();
-            formData.append("username", selectedUser);
+            formData.append("username", selectedUser.valueOf());
 
-            apiClient.patch(`/resource/share/${selectedUser}`, {}, {params: {id: fileToBeShared.resourceId}, headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
+            apiClient.patch(`/resource/share/${selectedUser.valueOf()}`, {}, {params: {id: fileToBeShared.resourceId}, headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                 .then(res => {
                     setSelectedUser(undefined);
                     setFileToBeShared(undefined);
@@ -221,7 +224,6 @@ const FileManagerPage = () => {
                 .catch(err => console.log(err.message));
         }
     }
-
 
     const onChangeFileLocationSubmit = () => {
         if (fileToBeEdited && currentFolder && initialCurrentFolder !== currentFolder) {
@@ -387,21 +389,40 @@ const FileManagerPage = () => {
                         </div> : <></>}
                     </IonContent>
                 </Modal>
-                <Modal title={"Share"} isOpen={isShareFileOpen} setIsOpen={setIsShareFileOpen}>
-                    <IonContent className={"ion-padding"}>
+                <Modal title={"Share"} isOpen={isShareFileOpen} setIsOpen={setIsShareFileOpen} backgroundColor={"black"}>
+                    <IonContent className="ion-padding">
                         <div className={"mb-10 w-full"}>
-                            <IonTitle>Share File</IonTitle>
-                            <IonSelect
-                                label="Select User"
-                                onIonChange={(e) => setSelectedUser(e.target.value)}
-                            >
-                                {users.map(u => (
-                                    <IonSelectOption key={u.valueOf()} value={u}>{u}</IonSelectOption>
-                                ))}
-                            </IonSelect>
-                            <IonButton type={"button"} className={"w-full"}
-                                       onClick={() => shareFileWithUser()}>Share</IonButton>
+                            <IonTitle>Share File {fileToBeShared?.name}</IonTitle>
+                            <div className={"mx-5 mb-5"}>
+                                <IonSelect
+                                    label="Select User"
+                                    onIonChange={(e) => setSelectedUser(e.target.value)}
+                                >
+                                    {users.map(u => (
+                                        <IonSelectOption value={u}>{u}</IonSelectOption>
+                                    ))}
+                                </IonSelect>
+                                <IonButton
+                                    onClick={() => shareFileWithUser()}
+                                >Share</IonButton>
+                            </div>
                         </div>
+
+                        {fileToBeEdited && fileToBeEdited.type === ResourceType.FILE ? <div>
+                            <IonTitle>Move File / Change File Location</IonTitle>
+                            <div className={"flex flex-row justify-between px-5 mt-3"}>
+                                <IonChip
+                                    color="primary">{lastFolders ? lastFolders.map(x => x.name).join("/").substring(1) + "/" + currentFolder.name : currentFolder.name}</IonChip>
+                                <IonButton disabled={lastFolders === undefined}
+                                           onClick={goBackToLastFolder}>Back</IonButton>
+                            </div>
+                            <FileList resources={currentFolder.children?.filter(x => x.type === ResourceType.FOLDER)}
+                                      handleOnClickFileListItem={handleOnClickFileListItem}
+                                      deleteFile={deleteFile}/>
+                            <IonButton type={"button"} className={"w-full mt-10"}
+                                       onClick={() => onChangeFileLocationSubmit()}>Submit Changes To File
+                                Location</IonButton>
+                        </div> : <></>}
                     </IonContent>
                 </Modal>
                 <Modal title={"File Preview: " + selectedFile?.name} isOpen={isFilePreviewOpen}
@@ -417,4 +438,4 @@ const FileManagerPage = () => {
     );
 };
 
-export default FileManagerPage;
+export default SharedFileManagerPage;
