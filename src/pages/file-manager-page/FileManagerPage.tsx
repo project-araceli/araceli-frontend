@@ -25,6 +25,8 @@ import {ResourceType} from "../../common/global-constants";
 import {addOutline, documentOutline, folderOutline, move, search} from "ionicons/icons";
 import Modal from "../../components/modal/Modal";
 import ContentPreview from "../../components/content-preview/ContentPreview";
+import {useCookies} from "react-cookie";
+import {useHistory} from "react-router-dom";
 
 const FileManagerPage = () => {
     const [isAddFileOpen, setIsAddFileOpen] = useState<boolean>(false);
@@ -62,8 +64,15 @@ const FileManagerPage = () => {
     const [currentFolder, setCurrentFolder] = useState<IResource>({} as IResource);
     const [lastFolders, setLastFolders] = useState<IResource[] | undefined>();
     const fileExtensionOptions = ["all", ".png", ".jpeg", ".docx", ".txt", ".md"];
+    const [cookies, setCookies] = useCookies();
+    const navigate = useHistory();
 
     useEffect(() => {
+
+        if(cookies['auth-token']) {
+            navigate.push("/login")
+        }
+
         const previousCurrentFolder = {...currentFolder};
         setCurrentFolder(rootFolder);
         if (previousCurrentFolder.resourceId !== rootFolder.resourceId && Object.keys(previousCurrentFolder).length !== 0) {
@@ -86,7 +95,7 @@ const FileManagerPage = () => {
                 formData.append("name", acceptedFiles[0].name);
                 formData.append("parentId", currentFolder.resourceId);
                 formData.append("contentType", acceptedFiles[0].type);
-                apiClient.post("/resource", formData, {headers: {Authorization: "TOKEN"}})
+                apiClient.post("/resource", formData, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                     .then(res => {
                         setIsAddFileOpen(false);
                         if (currentFolder.children) {
@@ -110,7 +119,7 @@ const FileManagerPage = () => {
             formData.append("name", name);
             formData.append("parentId", currentFolder.resourceId);
             formData.append("contentType", "FOLDER");
-            apiClient.post("/resource", formData, {headers: {Authorization: "TOKEN"}})
+            apiClient.post("/resource", formData, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                 .then(res => {
                     setIsAddFolderOpen(false);
                     if (currentFolder.children) {
@@ -154,7 +163,7 @@ const FileManagerPage = () => {
     }
 
     const deleteFile = (item: IResource) => {
-        apiClient.delete("/resource/" + item.resourceId, {headers: {Authorization: "TOKEN"}})
+        apiClient.delete("/resource/" + item.resourceId, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
             .then(res => {
                 setCurrentFolder({
                     ...currentFolder,
@@ -192,7 +201,7 @@ const FileManagerPage = () => {
         if (fileToBeEdited && currentFolder && initialCurrentFolder !== currentFolder) {
             apiClient.patch(`/resource/${fileToBeEdited.resourceId}/path`, {}, {
                 params: {newParentId: currentFolder.resourceId},
-                headers: {Authorization: "TOKEN"}
+                headers: {Authorization: `Bearer ${cookies['auth-token']}`}
             })
                 .then((res) => {
                     if (currentFolder.children) {
@@ -226,7 +235,7 @@ const FileManagerPage = () => {
             if (params) {
                 apiClient.patch(`/resource/${fileToBeEdited.resourceId}`, {}, {
                     params: params,
-                    headers: {Authorization: "TOKEN"}
+                    headers: {Authorization: `Bearer ${cookies['auth-token']}`}
                 })
                     .then((res) => {
                         if (currentFolder.children) {
