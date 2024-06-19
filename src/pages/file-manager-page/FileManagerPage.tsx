@@ -22,11 +22,11 @@ import apiClient from "../../common/api-client";
 import {IResource} from "../../common/models";
 import useResources from "../../hooks/useResources";
 import {ResourceType} from "../../common/global-constants";
-import {addOutline, documentOutline, folderOutline, move, search} from "ionicons/icons";
+import {addOutline, chatboxOutline, documentOutline, folderOutline, listOutline, move, search} from "ionicons/icons";
 import Modal from "../../components/modal/Modal";
 import ContentPreview from "../../components/content-preview/ContentPreview";
 import {useCookies} from "react-cookie";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import useUsers from "../../hooks/useUsers";
 import FileListShared from "../../components/file-list/FileListShared";
 import useSharedResources from "../../hooks/useSharedResources";
@@ -289,6 +289,10 @@ const FileManagerPage = () => {
                         <IonMenuButton/>
                     </IonButtons>
                     <IonTitle>File Manager</IonTitle>
+                    <IonButton slot={"end"} style={{margin: 10}} onClick={() => navigate.push("/chat")}><IonIcon
+                        icon={chatboxOutline}/></IonButton>
+                    <IonButton slot={"end"} style={{margin: 10}} onClick={() => navigate.push("/todolist")}><IonIcon
+                        icon={listOutline}/></IonButton>
                     <IonButton slot={"end"} onClick={() => setIsAddFolderOpen(true)}><IonIcon
                         icon={folderOutline}/><IonIcon icon={addOutline}/></IonButton>
                     <IonButton slot={"end"} style={{margin: 10}} onClick={() => setIsAddFileOpen(true)}><IonIcon

@@ -27,7 +27,7 @@ const ChatPage = () => {
 
     const initWebSocketConnection = () => {
         let temp = new Client({
-            brokerURL: "ws://localhost:8080/chat",
+            brokerURL: "ws://localhost:8080/chat"
         });
         temp.onConnect = function (frame) {
             temp.subscribe("/topic/messages", (x) => {
@@ -38,13 +38,12 @@ const ChatPage = () => {
         client.current = temp;
     }
 
-    // TODO: replace token
     const sendMessage = () => {
         if (client.current) {
             if (text && text.trim() !== "") {
                 client.current.publish({
                     destination: "/app/chat",
-                    body: JSON.stringify({content: text, token: "TOKEN"})
+                    body: JSON.stringify({content: text})
                 });
             }
         } else {
@@ -66,7 +65,6 @@ const ChatPage = () => {
             } else {
                 setMessages([...messages, lastMessage]);
             }
-
         }
     }, [lastMessage]);
 

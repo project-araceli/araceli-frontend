@@ -13,7 +13,7 @@ import {
     IonIcon, IonInput,
     IonItem,
     IonLabel,
-    IonList, IonModal,
+    IonList, IonModal, IonPage,
     IonReorderGroup,
     IonSelect, IonSelectOption,
     IonTitle, IonToast,
@@ -45,11 +45,6 @@ const TodoListPage = () => {
     const navigate = useHistory();
 
     useEffect(() => {
-
-        if (!cookies["auth-token"]) {
-            navigate.push("/login");
-        }
-
         if (todoLists.length > 0) {
             setSelectedTodoList(selectedTodoList === undefined ? todoLists[0] : selectedTodoList);
             initCompletedAndNotCompletedTasks();
@@ -151,148 +146,151 @@ const TodoListPage = () => {
     }
 
     return (
-        <IonContent>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Todo</IonTitle>
-                    <IonButton className={"me-2"} slot={"end"}
-                               onClick={() => setIsReorderEnabled(!isReorderEnabled)}>Edit</IonButton>
-                    <IonButton className={"me-2"} slot={"end"} onClick={() => setIsCreateTodoListModalOpen(true)}>
-                        <IonIcon slot={"icon-only"} icon={add}/>
-                    </IonButton>
-                </IonToolbar>
-            </IonHeader>
-            <div className={"flex flex-row gap-3"}>
-                <IonItem className={"mt-2 mb-2 w-1/3"}>
-                    <IonSelect aria-label="todolist" interface="popover" placeholder="Select a TodoList"
-                               value={selectedTodoList?.todoListId}
-                               onIonChange={(e) => setSelectedTodoList(todoLists.find(x => x.todoListId === e.target.value))}>
-                        {error ? <IonSelectOption>{error}</IonSelectOption> : todoLists.map(x => <IonSelectOption
-                            value={x.todoListId}>{x.title}</IonSelectOption>)}
-                    </IonSelect>
-                </IonItem>
-                <IonItem className={"mt-2 mb-2 w-2/3"}>
-                    <IonInput
-                        value={title}
-                        onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
-                        label="Task Name"
-                        labelPlacement="stacked"
-                        type="text"
-                        placeholder="Task Name"
-                        disabled={selectedTodoList === undefined}
-                    />
-                    <IonButton className={"h-12 w-1/4"} onClick={() => createTask()}>Add</IonButton>
-                </IonItem>
-            </div>
-            <IonModal isOpen={isCreateTodoListModalOpen} onWillDismiss={() => {
-                setIsCreateTodoListModalOpen(false)
-            }}>
+        <IonPage>
+            <IonContent>
                 <IonHeader>
                     <IonToolbar>
-                        <IonButtons slot="start">
-                            <IonButton onClick={() => setIsCreateTodoListModalOpen(false)}>Cancel</IonButton>
-                        </IonButtons>
-                        <IonTitle>Create TodoList</IonTitle>
-                        <IonButtons slot="end">
-                            <IonButton strong={true} onClick={() => {
-                                createTodoList()
-                            }}>
-                                Create
-                            </IonButton>
-                        </IonButtons>
+                        <IonTitle>Todo</IonTitle>
+                        <IonButton className={"me-2"} slot={"end"}
+                                   onClick={() => setIsReorderEnabled(!isReorderEnabled)}>Edit</IonButton>
+                        <IonButton className={"me-2"} slot={"end"} onClick={() => setIsCreateTodoListModalOpen(true)}>
+                            <IonIcon slot={"icon-only"} icon={add}/>
+                        </IonButton>
                     </IonToolbar>
                 </IonHeader>
-                <IonContent className="ion-padding">
-                    <IonItem>
+                <div className={"flex flex-row gap-3"}>
+                    <IonItem className={"mt-2 mb-2 w-1/3"}>
+                        <IonSelect aria-label="todolist" interface="popover" placeholder="Select a TodoList"
+                                   value={selectedTodoList?.todoListId}
+                                   onIonChange={(e) => setSelectedTodoList(todoLists.find(x => x.todoListId === e.target.value))}>
+                            {error ? <IonSelectOption>{error}</IonSelectOption> : todoLists.map(x => <IonSelectOption
+                                value={x.todoListId}>{x.title}</IonSelectOption>)}
+                        </IonSelect>
+                    </IonItem>
+                    <IonItem className={"mt-2 mb-2 w-2/3"}>
                         <IonInput
                             value={title}
                             onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
-                            label="Name"
+                            label="Task Name"
                             labelPlacement="stacked"
                             type="text"
-                            placeholder="TodoList Name"
+                            placeholder="Task Name"
+                            disabled={selectedTodoList === undefined}
                         />
+                        <IonButton className={"h-12 w-1/4"} onClick={() => createTask()}>Add</IonButton>
                     </IonItem>
-                </IonContent>
-            </IonModal>
-            <IonModal isOpen={isCreateTaskModalOpen} onWillDismiss={() => {
-                setIsCreateTaskModalOpen(false)
-            }}>
-                <IonHeader>
-                    <IonToolbar>
-                        <IonButtons slot="start">
-                            <IonButton onClick={() => setIsCreateTaskModalOpen(false)}>Cancel</IonButton>
-                        </IonButtons>
-                        <IonTitle>Create TodoList</IonTitle>
-                        <IonButtons slot="end">
-                            <IonButton strong={true} onClick={() => {
-                                createTodoList()
-                            }}>
-                                Create
-                            </IonButton>
-                        </IonButtons>
-                    </IonToolbar>
-                </IonHeader>
-                <IonContent className="ion-padding">
-                    <IonItem>
-                        <IonInput
-                            value={title}
-                            onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
-                            label="Name"
-                            labelPlacement="stacked"
-                            type="text"
-                            placeholder="TodoList Name"
-                        />
-                    </IonItem>
-                    <IonItem>
-                        <IonInput
-                            value={title}
-                            onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
-                            label="Name"
-                            labelPlacement="stacked"
-                            type="text"
-                            placeholder="TodoList Name"
-                        />
-                    </IonItem>
-                </IonContent>
-            </IonModal>
-            <IonToast
-                isOpen={error !== undefined}
-                message={errorOutput}
-                duration={3000}
-                buttons={[
-                    {
-                        text: 'Dismiss',
-                        role: 'cancel'
-                    },
-                ]}
-            ></IonToast>
-            <>
-                {selectedTodoList === undefined ?
-                    <div className={"text-center"}>Select a TodoList to check your tasks.</div> :
-                    <>
-                        <IonList lines={"full"}>
-                            <IonReorderGroup disabled={!isReorderEnabled} onIonItemReorder={handleReorder}>
-                                {notCompletedTasks.map(x => <TodoListItem key={x.itemId} item={x}
-                                                                          onToggleIsDoneCheckbox={onToggleIsDoneCheckbox}
-                                                                          deleteItem={deleteTask}/>)}
-                            </IonReorderGroup>
-                        </IonList>
-                        <IonChip className={"m-4"}>
-                            <IonIcon icon={checkmarkOutline}></IonIcon>
-                            <IonLabel>Completed Tasks</IonLabel>
-                        </IonChip>
-                        <IonList lines={"full"}>
-                            <IonReorderGroup disabled={!isReorderEnabled} onIonItemReorder={handleReorder}>
-                                {completedTasks.map(x => <TodoListItem key={x.itemId} item={x}
-                                                                       onToggleIsDoneCheckbox={onToggleIsDoneCheckbox}
-                                                                       deleteItem={deleteTask}/>)}
-                            </IonReorderGroup>
-                        </IonList>
-                    </>
-                }
-            </>
-        </IonContent>
+                </div>
+                <IonModal isOpen={isCreateTodoListModalOpen} onWillDismiss={() => {
+                    setIsCreateTodoListModalOpen(false)
+                }}>
+                    <IonHeader>
+                        <IonToolbar>
+                            <IonButtons slot="start">
+                                <IonButton onClick={() => setIsCreateTodoListModalOpen(false)}>Cancel</IonButton>
+                            </IonButtons>
+                            <IonTitle>Create TodoList</IonTitle>
+                            <IonButtons slot="end">
+                                <IonButton strong={true} onClick={() => {
+                                    createTodoList()
+                                }}>
+                                    Create
+                                </IonButton>
+                            </IonButtons>
+                        </IonToolbar>
+                    </IonHeader>
+                    <IonContent className="ion-padding">
+                        <IonItem>
+                            <IonInput
+                                value={title}
+                                onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
+                                label="Name"
+                                labelPlacement="stacked"
+                                type="text"
+                                placeholder="TodoList Name"
+                            />
+                        </IonItem>
+                    </IonContent>
+                </IonModal>
+                <IonModal isOpen={isCreateTaskModalOpen} onWillDismiss={() => {
+                    setIsCreateTaskModalOpen(false)
+                }}>
+                    <IonHeader>
+                        <IonToolbar>
+                            <IonButtons slot="start">
+                                <IonButton onClick={() => setIsCreateTaskModalOpen(false)}>Cancel</IonButton>
+                            </IonButtons>
+                            <IonTitle>Create TodoList</IonTitle>
+                            <IonButtons slot="end">
+                                <IonButton strong={true} onClick={() => {
+                                    createTodoList()
+                                }}>
+                                    Create
+                                </IonButton>
+                            </IonButtons>
+                        </IonToolbar>
+                    </IonHeader>
+                    <IonContent className="ion-padding">
+                        <IonItem>
+                            <IonInput
+                                value={title}
+                                onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
+                                label="Name"
+                                labelPlacement="stacked"
+                                type="text"
+                                placeholder="TodoList Name"
+                            />
+                        </IonItem>
+                        <IonItem>
+                            <IonInput
+                                value={title}
+                                onIonChange={(e) => setTitle(e.target.value ? "" + e.target.value : "")}
+                                label="Name"
+                                labelPlacement="stacked"
+                                type="text"
+                                placeholder="TodoList Name"
+                            />
+                        </IonItem>
+                    </IonContent>
+                </IonModal>
+                <IonToast
+                    isOpen={error !== undefined}
+                    message={errorOutput}
+                    duration={3000}
+                    buttons={[
+                        {
+                            text: 'Dismiss',
+                            role: 'cancel'
+                        },
+                    ]}
+                ></IonToast>
+                <>
+                    {selectedTodoList === undefined ?
+                        <div className={"text-center"}>Select a TodoList to check your tasks.</div> :
+                        <>
+                            <IonList lines={"full"}>
+                                <IonReorderGroup disabled={!isReorderEnabled} onIonItemReorder={handleReorder}>
+                                    {notCompletedTasks.map(x => <TodoListItem key={x.itemId} item={x}
+                                                                              onToggleIsDoneCheckbox={onToggleIsDoneCheckbox}
+                                                                              deleteItem={deleteTask}/>)}
+                                </IonReorderGroup>
+                            </IonList>
+                            <IonChip className={"m-4"}>
+                                <IonIcon icon={checkmarkOutline}></IonIcon>
+                                <IonLabel>Completed Tasks</IonLabel>
+                            </IonChip>
+                            <IonList lines={"full"}>
+                                <IonReorderGroup disabled={!isReorderEnabled} onIonItemReorder={handleReorder}>
+                                    {completedTasks.map(x => <TodoListItem key={x.itemId} item={x}
+                                                                           onToggleIsDoneCheckbox={onToggleIsDoneCheckbox}
+                                                                           deleteItem={deleteTask}/>)}
+                                </IonReorderGroup>
+                            </IonList>
+                        </>
+                    }
+                </>
+            </IonContent>
+        </IonPage>
+
     );
 };
 
