@@ -22,12 +22,6 @@ const useResources = () => {
 
 
     useEffect(() => {
-        if (cookies['auth-token']) {
-            navigate.push("/login")
-        }
-
-        console.log("REFRESHED");
-        console.log(fileExtension);
         const controller = new AbortController();
         apiClient.get("/resource", {params: {search: search, fileExtension: fileExtension === "all" ? null : fileExtension}, headers: { Authorization: `Bearer ${cookies['auth-token']}`}, signal: controller.signal})
             .then(res => {setResources(res.data)})

@@ -46,8 +46,8 @@ const TodoListPage = () => {
 
     useEffect(() => {
 
-        if (cookies['auth-token']) {
-            navigate.push("/login")
+        if (!cookies["auth-token"]) {
+            navigate.push("/login");
         }
 
         if (todoLists.length > 0) {
@@ -82,12 +82,8 @@ const TodoListPage = () => {
     const createTodoList = () => {
         if (!(title.trim() === "")) {
             setIsCreateTodoListModalOpen(false);
-            // TODO: update userId here
             apiClient.post("/todolist", {title: title}, {
-                params: {
-                    userId: 1
-                },
-                headers: { Authorization: `Bearer ${cookies['auth-token']}`}
+                headers: {Authorization: `Bearer ${cookies['auth-token']}`}
             })
                 .then(res => {
                     setErrorOutput(undefined);
@@ -103,13 +99,13 @@ const TodoListPage = () => {
     const createTask = () => {
         if (selectedTodoList) {
             apiClient.post(`/todolist/${selectedTodoList.todoListId}/addItem`, {
-                name: title,
-                description: null,
-                isDone: false,
-            }, {
-                headers: { Authorization: `Bearer ${cookies['auth-token']}`}
-            }
-                )
+                    name: title,
+                    description: null,
+                    isDone: false,
+                }, {
+                    headers: {Authorization: `Bearer ${cookies['auth-token']}`}
+                }
+            )
                 .then(res => {
                     let todoListsWithoutSelectedTodoList = todoLists.filter(x => x.todoListId !== selectedTodoList.todoListId);
                     setTodoLists([...todoListsWithoutSelectedTodoList, {...selectedTodoList, items: res.data}])
@@ -125,7 +121,7 @@ const TodoListPage = () => {
 
     const deleteTask = (itemId: string) => {
         if (selectedTodoList) {
-            apiClient.delete(`/todolist/item/${itemId}`, {headers: { Authorization: `Bearer ${cookies['auth-token']}`}})
+            apiClient.delete(`/todolist/item/${itemId}`, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                 .then(res => {
                     let todoListsWithoutSelectedTodoList = todoLists.filter(x => x.todoListId !== selectedTodoList.todoListId);
 
@@ -146,7 +142,7 @@ const TodoListPage = () => {
 
     const toggleIsDone = (itemId: string) => {
         if (selectedTodoList) {
-            apiClient.patch(`/todolist/item/${itemId}/toggleDone`, {headers: { Authorization: `Bearer ${cookies['auth-token']}`}})
+            apiClient.patch(`/todolist/item/${itemId}/toggleDone`, {headers: {Authorization: `Bearer ${cookies['auth-token']}`}})
                 .then()
                 .catch(err => {
                     setErrorOutput(err.message);
@@ -169,7 +165,8 @@ const TodoListPage = () => {
             <div className={"flex flex-row gap-3"}>
                 <IonItem className={"mt-2 mb-2 w-1/3"}>
                     <IonSelect aria-label="todolist" interface="popover" placeholder="Select a TodoList"
-                               value={selectedTodoList?.todoListId} onIonChange={(e) => setSelectedTodoList(todoLists.find(x => x.todoListId === e.target.value))}>
+                               value={selectedTodoList?.todoListId}
+                               onIonChange={(e) => setSelectedTodoList(todoLists.find(x => x.todoListId === e.target.value))}>
                         {error ? <IonSelectOption>{error}</IonSelectOption> : todoLists.map(x => <IonSelectOption
                             value={x.todoListId}>{x.title}</IonSelectOption>)}
                     </IonSelect>

@@ -77,9 +77,9 @@ const FileManagerPage = () => {
 
     useEffect(() => {
 
-        if(cookies['auth-token']) {
+        /*if(cookies['auth-token']) {
             navigate.push("/login")
-        }
+        }*/
 
         const previousCurrentFolder = {...currentFolder};
         setCurrentFolder(rootFolder);
